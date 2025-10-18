@@ -1,6 +1,6 @@
 name: Build and Deploy to Firebase
 
-'on':
+on:
   push:
     branches:
       - main
