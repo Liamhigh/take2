@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Verum Omnis</string>
+    <string name="welcome_message">Verum Omnis Forensic Engine</string>
+    <string name="description">AI-Powered Truth Discovery Platform</string>
+</resources>
