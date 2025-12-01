@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Verum Omnis Forensic</string>
+    <string name="scanner_title">Document Scanner</string>
+    <string name="report_title">Forensic Reports</string>
+</resources>
