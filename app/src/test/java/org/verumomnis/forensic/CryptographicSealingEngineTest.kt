@@ -4,6 +4,7 @@ import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
 import org.verumomnis.forensic.crypto.CryptographicSealingEngine
+import org.verumomnis.forensic.crypto.DeviceInfo
 import org.verumomnis.forensic.location.ForensicLocation
 import java.time.Instant
 
@@ -14,6 +15,11 @@ import java.time.Instant
  * - hash_standard: SHA-512
  * - seal_required: true
  * - tamper_detection: mandatory
+ *
+ * Additional tests for forensic-grade Triple Hash Layer:
+ * - Layer 1: SHA-512 of content
+ * - Layer 2: SHA-512 of metadata
+ * - Layer 3: HMAC-SHA512 combining both
  */
 class CryptographicSealingEngineTest {
 
@@ -190,5 +196,140 @@ class CryptographicSealingEngineTest {
         assertTrue(map.containsKey("algorithm"))
         assertTrue(map.containsKey("content_hash"))
         assertTrue(map.containsKey("signature"))
+    }
+
+    // =========================================================================
+    // TRIPLE HASH LAYER TESTS
+    // =========================================================================
+
+    @Test
+    fun `createTripleHashSeal creates valid triple hash seal`() {
+        val content = "Test forensic evidence content".toByteArray()
+        val metadata = mapOf("source" to "test", "type" to "document")
+        val deviceInfo = DeviceInfo(
+            manufacturer = "TestManufacturer",
+            model = "TestModel",
+            androidVersion = "13",
+            sdkVersion = 33
+        )
+
+        val seal = sealingEngine.createTripleHashSeal(
+            content = content,
+            metadata = metadata,
+            deviceInfo = deviceInfo,
+            caseName = "Test Case"
+        )
+
+        assertNotNull(seal)
+        assertEquals(128, seal.contentHash.length)  // SHA-512 = 128 hex chars
+        assertEquals(128, seal.metadataHash.length)
+        assertNotNull(seal.hmacSeal)
+        assertEquals("Test Case", seal.caseName)
+        assertEquals(CryptographicSealingEngine.VERSION, seal.version)
+    }
+
+    @Test
+    fun `createTripleHashSeal produces deterministic content hash`() {
+        val content = "Deterministic test content".toByteArray()
+        val deviceInfo = DeviceInfo("Test", "Test", "13", 33)
+
+        val seal1 = sealingEngine.createTripleHashSeal(content, emptyMap(), deviceInfo, "Case1")
+        val seal2 = sealingEngine.createTripleHashSeal(content, emptyMap(), deviceInfo, "Case2")
+
+        // Content hash should be the same for same content
+        assertEquals(seal1.contentHash, seal2.contentHash)
+
+        // But HMAC seals should differ due to different salts
+        assertNotEquals(seal1.hmacSeal, seal2.hmacSeal)
+    }
+
+    @Test
+    fun `verifyTripleHashSeal detects valid content`() {
+        val content = "Test forensic evidence".toByteArray()
+        val deviceInfo = DeviceInfo("Test", "Test", "13", 33)
+
+        val seal = sealingEngine.createTripleHashSeal(
+            content = content,
+            metadata = emptyMap(),
+            deviceInfo = deviceInfo,
+            caseName = "Test Case"
+        )
+
+        val result = sealingEngine.verifyTripleHashSeal(seal, content)
+
+        assertTrue(result.isValid)
+        assertTrue(result.contentIntact)
+        assertTrue(result.metadataIntact)
+        assertTrue(result.sealIntact)
+        assertTrue(result.message.contains("PASSED"))
+    }
+
+    @Test
+    fun `verifyTripleHashSeal detects tampered content`() {
+        val originalContent = "Original evidence".toByteArray()
+        val tamperedContent = "Tampered evidence".toByteArray()
+        val deviceInfo = DeviceInfo("Test", "Test", "13", 33)
+
+        val seal = sealingEngine.createTripleHashSeal(
+            content = originalContent,
+            metadata = emptyMap(),
+            deviceInfo = deviceInfo,
+            caseName = "Test Case"
+        )
+
+        val result = sealingEngine.verifyTripleHashSeal(seal, tamperedContent)
+
+        assertFalse(result.isValid)
+        assertFalse(result.contentIntact)
+        assertTrue(result.message.contains("TAMPERING DETECTED"))
+    }
+
+    @Test
+    fun `generateForensicFooter includes required fields`() {
+        val content = "Test content".toByteArray()
+        val deviceInfo = DeviceInfo("Samsung", "Galaxy S21", "13", 33)
+
+        val seal = sealingEngine.createTripleHashSeal(
+            content = content,
+            metadata = emptyMap(),
+            deviceInfo = deviceInfo,
+            caseName = "Court Case 123"
+        )
+
+        val footer = sealingEngine.generateForensicFooter(seal)
+
+        assertTrue(footer.contains("Court Case 123"))
+        assertTrue(footer.contains("SHA512-"))
+        assertTrue(footer.contains("Samsung"))
+        assertTrue(footer.contains("Galaxy S21"))
+        assertTrue(footer.contains("VERUM OMNIS"))
+        assertTrue(footer.contains(CryptographicSealingEngine.VERSION))
+    }
+
+    @Test
+    fun `TamperDetectionResult generateReport produces readable output`() {
+        val content = "Test content".toByteArray()
+        val deviceInfo = DeviceInfo("Test", "Test", "13", 33)
+
+        val seal = sealingEngine.createTripleHashSeal(content, emptyMap(), deviceInfo, "Case")
+        val result = sealingEngine.verifyTripleHashSeal(seal, content)
+
+        val report = result.generateReport()
+
+        assertTrue(report.contains("TAMPERING DETECTION REPORT"))
+        assertTrue(report.contains("Layer 1"))
+        assertTrue(report.contains("Layer 2"))
+        assertTrue(report.contains("Layer 3"))
+        assertTrue(report.contains("RESULT:"))
+    }
+
+    @Test
+    fun `ISO timestamp formatter produces correct format`() {
+        val timestamp = Instant.parse("2025-01-15T10:30:00Z")
+        val formatted = CryptographicSealingEngine.ISO_TIMESTAMP_FORMATTER.format(timestamp)
+
+        // Should be in ISO 8601 format with timezone
+        assertTrue(formatted.contains("2025-01-15"))
+        assertTrue(formatted.contains("T"))
     }
 }
