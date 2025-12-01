@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Primary colors -->
+    <color name="primary">#1E3A8A</color>
+    <color name="primary_dark">#1E40AF</color>
+    <color name="primary_light">#3B82F6</color>
+    
+    <!-- Accent colors -->
+    <color name="accent">#10B981</color>
+    <color name="accent_dark">#059669</color>
+    
+    <!-- Background colors -->
+    <color name="background">#F8FAFC</color>
+    <color name="surface">#FFFFFF</color>
+    
+    <!-- Text colors -->
+    <color name="text_primary">#1E293B</color>
+    <color name="text_secondary">#64748B</color>
+    
+    <!-- Status colors -->
+    <color name="offline_badge">#059669</color>
+    <color name="error">#DC2626</color>
+    <color name="warning">#F59E0B</color>
+    <color name="success">#10B981</color>
+    
+    <!-- Seal colors -->
+    <color name="seal_valid">#10B981</color>
+    <color name="seal_invalid">#DC2626</color>
+</resources>

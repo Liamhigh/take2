@@ -1,8 +1,56 @@
 # Quick Start Guide
 
-This Firebase project is now ready to build and deploy!
+This project contains both a Firebase web hosting setup and the **Verum Omnis Forensic Android App**.
 
-## 🚀 What's Been Set Up
+## 🛡️ Verum Omnis Forensic App
+
+A stateless, offline-first Android app for cryptographically sealing evidence.
+
+### Key Features
+- **Offline-First**: All forensic operations work without network
+- **SHA-512 Sealing**: Evidence is cryptographically sealed
+- **Chain of Custody**: Immutable record of evidence handling
+- **No Telemetry**: Zero data transmission
+- **Airgap Ready**: Works in isolated environments
+
+### Building the Android App
+
+```bash
+cd android
+./gradlew assembleDebug
+# APK will be in android/app/build/outputs/apk/debug/
+```
+
+### Running Tests
+
+```bash
+cd android
+./gradlew test
+```
+
+### Project Structure
+
+```
+android/
+├── app/
+│   ├── src/main/kotlin/com/verumomnis/forensic/
+│   │   ├── core/           # Forensic models and interfaces
+│   │   ├── crypto/         # SHA-512 sealing service
+│   │   ├── evidence/       # Evidence processing engine
+│   │   ├── offline/        # Offline mode management
+│   │   └── ui/             # User interface
+│   └── src/test/           # Unit tests
+├── build.gradle.kts
+└── settings.gradle.kts
+```
+
+---
+
+## 🚀 Firebase Web Hosting
+
+## 🚀 Firebase Web Hosting
+
+### What's Been Set Up
 
 - ✅ Firebase configuration files (`firebase.json`, `.firebaserc`)
 - ✅ Web hosting structure (`public/` directory)

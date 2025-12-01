@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Verum Omnis Forensic</string>
+    <string name="subtitle">Cryptographic Evidence Sealing</string>
+    <string name="select_evidence">Select Evidence Files</string>
+    <string name="seal_evidence">🔐 Seal Evidence</string>
+    <string name="verify_evidence">✅ Verify Package</string>
+    <string name="verum_foundation">Verum Global Foundation</string>
+    <string name="offline_mode">Offline Mode Active</string>
+    <string name="processing">Processing evidence...</string>
+    <string name="sealed_success">Evidence sealed successfully</string>
+    <string name="verification_complete">Verification complete</string>
+</resources>

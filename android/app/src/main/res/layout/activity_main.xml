@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout 
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp"
+    android:background="@color/background"
+    tools:context=".ui.MainActivity">
+
+    <!-- Header -->
+    <TextView
+        android:id="@+id/textTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/app_name"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:textColor="@color/primary"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp"/>
+
+    <TextView
+        android:id="@+id/textSubtitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/subtitle"
+        android:textSize="14sp"
+        android:textColor="@color/text_secondary"
+        app:layout_constraintTop_toBottomOf="@id/textTitle"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="4dp"/>
+
+    <!-- Offline Status -->
+    <TextView
+        android:id="@+id/textOfflineStatus"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/offline_badge"
+        android:padding="8dp"
+        android:textColor="@android:color/white"
+        android:textAlignment="center"
+        android:text="🔒 Offline Mode Active"
+        app:layout_constraintTop_toBottomOf="@id/textSubtitle"
+        android:layout_marginTop="16dp"/>
+
+    <!-- Constitutional Info Card -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardConstitution"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:cardCornerRadius="8dp"
+        app:cardElevation="4dp"
+        app:layout_constraintTop_toBottomOf="@id/textOfflineStatus"
+        android:layout_marginTop="16dp">
+
+        <TextView
+            android:id="@+id/textConstitution"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="12dp"
+            android:textSize="12sp"
+            android:fontFamily="monospace"
+            tools:text="Constitutional Governance Active"/>
+    </androidx.cardview.widget.CardView>
+
+    <!-- File Selection -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/buttonSelectFiles"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/select_evidence"
+        android:textAllCaps="false"
+        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+        app:layout_constraintTop_toBottomOf="@id/cardConstitution"
+        android:layout_marginTop="24dp"
+        app:icon="@android:drawable/ic_menu_gallery"/>
+
+    <TextView
+        android:id="@+id/textSelectedCount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="No files selected"
+        android:textSize="14sp"
+        android:textColor="@color/text_secondary"
+        app:layout_constraintTop_toBottomOf="@id/buttonSelectFiles"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="8dp"/>
+
+    <!-- Seal Button -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/buttonSealEvidence"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/seal_evidence"
+        android:textAllCaps="false"
+        android:enabled="false"
+        app:layout_constraintTop_toBottomOf="@id/textSelectedCount"
+        android:layout_marginTop="16dp"
+        app:icon="@android:drawable/ic_menu_save"/>
+
+    <!-- Progress -->
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/buttonSealEvidence"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp"/>
+
+    <!-- Verify Button -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/buttonVerify"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/verify_evidence"
+        android:textAllCaps="false"
+        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+        app:layout_constraintTop_toBottomOf="@id/progressBar"
+        android:layout_marginTop="16dp"
+        app:icon="@android:drawable/ic_menu_search"/>
+
+    <!-- Last Seal Info -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardLastSeal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:cardCornerRadius="8dp"
+        app:cardElevation="2dp"
+        app:layout_constraintTop_toBottomOf="@id/buttonVerify"
+        android:layout_marginTop="24dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="12dp">
+
+            <TextView
+                android:id="@+id/textLastSeal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Last seal: None"
+                android:textSize="12sp"
+                android:fontFamily="monospace"/>
+
+            <TextView
+                android:id="@+id/textLastSealHash"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Hash: N/A"
+                android:textSize="10sp"
+                android:fontFamily="monospace"
+                android:textColor="@color/text_secondary"
+                android:layout_marginTop="4dp"/>
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <!-- Footer Info -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginBottom="16dp">
+
+        <TextView
+            android:id="@+id/textVersion"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Version: 1.0.0"
+            android:textSize="10sp"
+            android:textColor="@color/text_secondary"/>
+
+        <TextView
+            android:id="@+id/textHashStandard"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Hash: SHA-512"
+            android:textSize="10sp"
+            android:textColor="@color/text_secondary"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/verum_foundation"
+            android:textSize="10sp"
+            android:textColor="@color/text_secondary"
+            android:layout_marginTop="4dp"/>
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

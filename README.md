@@ -1,4 +1,55 @@
-Firebase Hosting & Mobile App Setup Guide
+Verum Omnis Forensic Engine
+
+A stateless, offline-first Android forensic evidence sealing application with cryptographic integrity guarantees.
+
+## 🛡️ Constitutional Governance Layer
+
+This project implements the **Verum Omnis Constitutional Governance Layer** - a set of immutable principles ensuring ethical, secure, and legally-admissible forensic evidence processing.
+
+### Core Principles
+- **Stateless**: No persistent user sessions or tracking
+- **Offline-First**: All forensic operations work without network connectivity
+- **Cryptographically Sealed**: SHA-512 hashing for evidence integrity
+- **Zero Telemetry**: No data leaves the device
+- **Airgap Ready**: Full functionality in isolated environments
+
+### Forensic Standards
+- **Hash Algorithm**: SHA-512
+- **PDF Standard**: PDF 1.7
+- **Seal Required**: Yes
+- **Tamper Detection**: Mandatory
+- **Admissibility Standard**: Legal-grade, contradiction-free
+
+---
+
+## 📱 Android Forensic App
+
+The Android app (`android/`) provides:
+- Evidence file selection and processing
+- SHA-512 cryptographic sealing
+- Chain of custody tracking
+- Offline evidence verification
+- PDF export with watermarks and QR codes
+
+### Building the Android App
+
+```bash
+cd android
+./gradlew assembleDebug
+```
+
+### Key Components
+
+| Component | Description |
+|-----------|-------------|
+| `VerumForensicEngine` | Core forensic processing engine |
+| `CryptoSealService` | SHA-512 hashing and sealing |
+| `EvidenceProcessingService` | Background evidence processing |
+| `OfflineModeManager` | Offline-first compliance |
+
+---
+
+## 🌐 Firebase Hosting & Mobile App Setup Guide
 
 This comprehensive guide covers setting up Firebase Hosting for a website and Firebase for Android/iOS apps from start to finish.
 

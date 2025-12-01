@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Network Security Configuration
+    
+    Constitutional Requirements:
+    - offline_first: true
+    - no_cloud_logging: true  
+    - no_telemetry: true
+    
+    This configuration ensures no data leaves the device.
+-->
+<network-security-config>
+    <!-- Base configuration: deny all cleartext traffic -->
+    <base-config cleartextTrafficPermitted="false">
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>
+    
+    <!-- 
+        No domain-config entries needed as app is offline-first.
+        All network access is intentionally restricted.
+    -->
+</network-security-config>

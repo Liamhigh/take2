@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    File Provider Paths
+    Used for secure file sharing between activities
+-->
+<paths>
+    <cache-path name="evidence_cache" path="." />
+    <files-path name="evidence_sealed" path="sealed/" />
+    <files-path name="evidence_export" path="export/" />
+</paths>
