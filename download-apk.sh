@@ -24,7 +24,23 @@ if ! command -v gh &> /dev/null; then
     exit 1
 fi
 
+# Check if jq is installed
+if ! command -v jq &> /dev/null; then
+    echo "❌ jq is not installed."
+    echo ""
+    echo "Please install jq:"
+    echo "  - Ubuntu/Debian: sudo apt-get install jq"
+    echo "  - macOS: brew install jq"
+    echo "  - Windows: Download from https://stedolan.github.io/jq/"
+    echo ""
+    echo "Or manually download the APK from:"
+    echo "https://github.com/Liamhigh/take2/actions/workflows/build-apk.yml"
+    echo ""
+    exit 1
+fi
+
 echo "✅ GitHub CLI found"
+echo "✅ jq found"
 echo ""
 
 # Set repository
@@ -49,7 +65,7 @@ echo ""
 
 # List available artifacts
 echo "📦 Available artifacts:"
-gh run view "$RUN_ID" --repo "$REPO" --json artifacts --jq '.artifacts[] | "  - \(.name) (\(.sizeInBytes / 1024 / 1024 | floor)MB)"'
+gh run view "$RUN_ID" --repo "$REPO" --json artifacts --jq '.artifacts[] | "  - \(.name) (\((.sizeInBytes / 1024 / 1024 * 10 | floor) / 10)MB)"'
 echo ""
 
 # Ask user which to download
@@ -77,13 +93,29 @@ echo "📥 Downloading $ARTIFACT..."
 echo ""
 
 # Download the artifact
-gh run download "$RUN_ID" --repo "$REPO" --name "$ARTIFACT"
+if gh run download "$RUN_ID" --repo "$REPO" --name "$ARTIFACT"; then
+    echo ""
+    echo "✅ Download complete!"
+    echo ""
+    
+    # Check if APK files exist
+    if ls "$ARTIFACT"/*.apk 1> /dev/null 2>&1; then
+        echo "📁 APK extracted to: ./$ARTIFACT/"
+        ls -lh "$ARTIFACT"/*.apk
+    else
+        echo "⚠️ Warning: No APK files found in downloaded artifact"
+        echo "Directory contents:"
+        ls -lh "$ARTIFACT"/
+    fi
+else
+    echo ""
+    echo "❌ Download failed!"
+    echo ""
+    echo "Please try downloading manually from:"
+    echo "https://github.com/$REPO/actions/runs/$RUN_ID"
+    exit 1
+fi
 
-echo ""
-echo "✅ Download complete!"
-echo ""
-echo "📁 APK extracted to: ./$ARTIFACT/"
-ls -lh "$ARTIFACT"/*.apk
 echo ""
 echo "================================================"
 echo "Installation Instructions:"

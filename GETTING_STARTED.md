@@ -34,10 +34,11 @@ This requires the [GitHub CLI](https://cli.github.com/) to be installed.
 7. **Install the APK** on your Android device
 
 ### Latest Successful Build
-- **Build Run:** #96
-- **Date:** 2025-12-01
+**Note:** Build information below may be outdated. Always check the [GitHub Actions page](https://github.com/Liamhigh/take2/actions/workflows/build-apk.yml) for the most recent successful build.
+
+- **Build Run:** #96 (as of 2025-12-01)
 - **Commit:** f4e76a2708801b27dde3b1bef2ac6db95833a3ea
-- **APKs Available For:** 30 days from build date
+- **APKs Retained:** 30 days from build date
 
 ## Option 2: Build Locally (Requires Network Access)
 
