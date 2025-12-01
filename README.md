@@ -6,9 +6,16 @@ An Android application for collecting, sealing, and reporting forensic evidence 
 
 ## 📥 Getting the App
 
-**→ [How to Download & Install the APK](GETTING_STARTED.md)**
+**Can't build the app locally? No problem!**
 
-**→ [Build Troubleshooting Guide](BUILD_TROUBLESHOOTING.md)** (if you encounter build issues)
+**→ Download pre-built APKs:** [GETTING_STARTED.md](GETTING_STARTED.md) - Quick guide to get the APK from GitHub Actions
+
+**→ Build issues?** See [BUILD_TROUBLESHOOTING.md](BUILD_TROUBLESHOOTING.md) for network/repository issues
+
+### Quick Download (if you have GitHub CLI):
+```bash
+./download-apk.sh
+```
 
 ## Features
 

@@ -4,6 +4,18 @@ Since the build environment has restricted network access (Google Maven reposito
 
 ## Option 1: Download Pre-built APK from GitHub Actions (RECOMMENDED)
 
+### Quick Method (Using Helper Script):
+
+We provide a helper script that automates the download:
+
+```bash
+./download-apk.sh
+```
+
+This requires the [GitHub CLI](https://cli.github.com/) to be installed.
+
+### Manual Method:
+
 1. **Go to the GitHub Actions page:**
    https://github.com/Liamhigh/take2/actions/workflows/build-apk.yml
 
