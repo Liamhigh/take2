@@ -67,7 +67,8 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.7.0")
 
     // Security - Android Jetpack Security for encrypted storage
-    implementation("androidx.security:security-crypto:1.1.0-alpha06")
+    // Using stable version for production reliability
+    implementation("androidx.security:security-crypto:1.0.0")
 
     // WorkManager for offline background processing
     implementation("androidx.work:work-runtime-ktx:2.9.0")

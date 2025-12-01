@@ -6,8 +6,6 @@ import java.security.MessageDigest
 import java.security.SecureRandom
 import javax.crypto.Mac
 import javax.crypto.spec.SecretKeySpec
-import kotlin.io.encoding.Base64
-import kotlin.io.encoding.ExperimentalEncodingApi
 
 /**
  * Cryptographic Sealing Service
@@ -34,7 +32,6 @@ object CryptoSealService {
      * @param file The file to hash
      * @return Hex-encoded SHA-512 hash
      */
-    @OptIn(ExperimentalEncodingApi::class)
     fun hashFile(file: File): String {
         val digest = MessageDigest.getInstance(HASH_ALGORITHM)
         file.inputStream().buffered(BUFFER_SIZE).use { input ->
