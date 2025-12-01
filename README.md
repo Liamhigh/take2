@@ -4,6 +4,12 @@
 
 An Android application for collecting, sealing, and reporting forensic evidence in accordance with the Verum Omnis Constitutional Governance Layer.
 
+## 📥 Getting the App
+
+**→ [How to Download & Install the APK](GETTING_STARTED.md)**
+
+**→ [Build Troubleshooting Guide](BUILD_TROUBLESHOOTING.md)** (if you encounter build issues)
+
 ## Features
 
 - **Cryptographic Evidence Sealing**: SHA-512 hashing with HMAC-SHA512 sealing for tamper detection
