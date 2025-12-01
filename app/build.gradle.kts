@@ -82,7 +82,7 @@ dependencies {
     implementation("androidx.camera:camera-lifecycle:1.3.1")
     implementation("androidx.camera:camera-view:1.3.1")
     implementation("com.google.mlkit:text-recognition:16.0.0")
-    implementation("com.google.mlkit:document-scanner:16.0.0-beta1")
+    implementation("com.google.android.gms:play-services-mlkit-document-scanner:16.0.0")
 
     // Testing
     testImplementation("junit:junit:4.13.2")

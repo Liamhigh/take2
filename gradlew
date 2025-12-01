@@ -39,7 +39,7 @@ done
 
 APP_HOME=$( cd "${APP_HOME:-./}" && pwd -P ) || exit
 
-DEFAULT_JVM_OPTS='"-Xmx64m" "-Xms64m"'
+DEFAULT_JVM_OPTS="-Xmx64m -Xms64m"
 
 # Use system gradle if wrapper JAR doesn't exist
 if [ ! -f "$APP_HOME/gradle/wrapper/gradle-wrapper.jar" ]; then
