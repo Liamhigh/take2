@@ -102,16 +102,16 @@ download_artifacts() {
     # Get artifact list
     local artifacts=$(gh api \
         "/repos/$REPO/actions/runs/$run_id/artifacts" \
-        --jq '.artifacts[] | {name: .name, id: .id}')
+        --jq '.artifacts | map({name: .name, id: .id})')
     
-    if [ -z "$artifacts" ]; then
+    if [ "$artifacts" = "[]" ]; then
         print_warn "No artifacts found for this run."
         echo "The workflow may not have uploaded any artifacts."
         exit 1
     fi
     
     print_info "Available artifacts:"
-    echo "$artifacts" | jq -r '.name'
+    echo "$artifacts" | jq -r '.[] | .name'
     echo ""
     
     # Ask user which artifact to download
@@ -190,4 +190,4 @@ main() {
 }
 
 # Run main function
-main "$@"
+main
