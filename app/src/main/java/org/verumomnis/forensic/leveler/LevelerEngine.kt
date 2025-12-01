@@ -228,6 +228,13 @@ class LevelerEngine {
             }
         }
 
+        // Upgrade severity of highest-occurring pattern if total evasion count is high
+        if (totalEvasionScore >= 5 && patterns.isNotEmpty() && patterns.none { it.severity == Severity.HIGH }) {
+            // Find index and pattern with max occurrences in single pass
+            val (maxIndex, _) = patterns.withIndex().maxByOrNull { it.value.occurrences } ?: return patterns
+            patterns[maxIndex] = patterns[maxIndex].copy(severity = Severity.HIGH)
+        }
+
         return patterns
     }
 

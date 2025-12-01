@@ -1,5 +1,7 @@
 # Verum Omnis Forensic Engine
 
+![Build Status](https://github.com/Liamhigh/take2/actions/workflows/build-apk.yml/badge.svg)
+
 An Android application for collecting, sealing, and reporting forensic evidence in accordance with the Verum Omnis Constitutional Governance Layer.
 
 ## Features
