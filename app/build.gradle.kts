@@ -70,6 +70,9 @@ dependencies {
     // PDF generation
     implementation("com.itextpdf:itext7-core:7.2.5")
 
+    // SLF4J logging (required by iTextPDF)
+    implementation("org.slf4j:slf4j-android:1.7.36")
+
     // JSON processing
     implementation("org.json:json:20231013")
 
