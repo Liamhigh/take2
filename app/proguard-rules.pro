@@ -12,6 +12,10 @@
 -keep class com.itextpdf.** { *; }
 -dontwarn com.itextpdf.**
 
+# SLF4J logging rules (required by iTextPDF)
+-keep class org.slf4j.** { *; }
+-dontwarn org.slf4j.**
+
 # ZXing QR code rules
 -keep class com.google.zxing.** { *; }
 
