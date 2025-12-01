@@ -42,17 +42,35 @@ This application operates under the Verum Omnis Constitution Mode, which enforce
 
 ## Building
 
-### Prerequisites
+**⚠️ Important:** This repository cannot be built locally due to network restrictions that block access to Google's Maven repository. See [BUILD_TROUBLESHOOTING.md](BUILD_TROUBLESHOOTING.md) for details.
+
+### Getting Pre-Built APKs
+
+Use the provided script to download the latest pre-built APK from GitHub Actions:
+
+```bash
+./download-apk.sh
+```
+
+Or manually download from the [Actions tab](https://github.com/Liamhigh/take2/actions/workflows/build-apk.yml).
+
+For complete instructions, see [GETTING_STARTED.md](GETTING_STARTED.md).
+
+### Building in Unrestricted Environments
+
+If you have access to an environment without network restrictions:
+
+#### Prerequisites
 - Android Studio Hedgehog or later
 - JDK 17
 - Android SDK 34
 
-### Build Debug APK
+#### Build Debug APK
 ```bash
 ./gradlew assembleDebug
 ```
 
-### Build Release APK
+#### Build Release APK
 ```bash
 ./gradlew assembleRelease
 ```

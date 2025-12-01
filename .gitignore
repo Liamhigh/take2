@@ -36,3 +36,6 @@ secrets/
 # Generated files
 app/build/
 app/release/
+
+# Downloaded APKs from script
+downloaded-apks/
