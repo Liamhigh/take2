@@ -79,8 +79,8 @@ class ScannerActivity : ComponentActivity() {
         Toast.makeText(this, "Photo capture feature - Coming soon", Toast.LENGTH_SHORT).show()
     }
 
-    @Suppress("UNUSED_PARAMETER")
     private fun addTextEvidence(description: String, content: String) {
+        @Suppress("UNUSED_VARIABLE")
         val app = application as VerumOmnisApplication
 
         lifecycleScope.launch {
