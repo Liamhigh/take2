@@ -12,6 +12,8 @@ NC='\033[0m' # No Color
 REPO="Liamhigh/take2"
 WORKFLOW_NAME="Build Android APK"
 OUTPUT_DIR="downloaded-apks"
+ARTIFACT_DEBUG="verum-omnis-debug-apk"
+ARTIFACT_RELEASE="verum-omnis-release-apk"
 
 # Function to print colored messages
 print_info() {
@@ -123,14 +125,14 @@ download_artifacts() {
     
     case $choice in
         1)
-            download_artifact "$run_id" "verum-omnis-debug-apk"
+            download_artifact "$run_id" "$ARTIFACT_DEBUG"
             ;;
         2)
-            download_artifact "$run_id" "verum-omnis-release-apk"
+            download_artifact "$run_id" "$ARTIFACT_RELEASE"
             ;;
         3)
-            download_artifact "$run_id" "verum-omnis-debug-apk"
-            download_artifact "$run_id" "verum-omnis-release-apk"
+            download_artifact "$run_id" "$ARTIFACT_DEBUG"
+            download_artifact "$run_id" "$ARTIFACT_RELEASE"
             ;;
         4)
             print_info "Download cancelled."
@@ -188,4 +190,4 @@ main() {
 }
 
 # Run main function
-main
+main "$@"
