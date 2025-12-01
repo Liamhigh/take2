@@ -1,9 +1,10 @@
 package org.verumomnis.forensic.core
 
 import android.content.Context
-import org.json.JSONArray
+import android.util.Log
 import org.json.JSONObject
 import java.io.BufferedReader
+import java.io.IOException
 
 /**
  * Rule Engine for Verum Omnis Forensic Analysis
@@ -19,6 +20,7 @@ import java.io.BufferedReader
 class RuleEngine(private val context: Context) {
 
     companion object {
+        private const val TAG = "RuleEngine"
         private const val RULES_DIR = "rules"
         private const val VERUM_RULES_FILE = "verum_rules.json"
         private const val DISHONESTY_MATRIX_FILE = "dishonesty_matrix.json"
@@ -40,8 +42,13 @@ class RuleEngine(private val context: Context) {
             dishonestyMatrix = loadDishonestyMatrix()
             legalSubjects = loadLegalSubjects()
             extractionProtocol = loadExtractionProtocol()
+            Log.i(TAG, "Rules loaded successfully")
             true
-        } catch (_: Exception) {
+        } catch (e: IOException) {
+            Log.e(TAG, "Failed to load rule files from assets", e)
+            false
+        } catch (e: org.json.JSONException) {
+            Log.e(TAG, "Failed to parse rule JSON files", e)
             false
         }
     }
@@ -149,7 +156,8 @@ class RuleEngine(private val context: Context) {
             categoryData.patterns.forEach { pattern ->
                 val regex = try {
                     Regex(pattern.regex, RegexOption.IGNORE_CASE)
-                } catch (_: Exception) {
+                } catch (e: java.util.regex.PatternSyntaxException) {
+                    Log.w(TAG, "Invalid regex pattern: ${pattern.id} - ${e.message}")
                     null
                 }
 

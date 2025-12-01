@@ -53,7 +53,7 @@ class RuleEngineTest {
         val matches = findKeywordMatches(text, keywords)
 
         assertTrue("Should find 'delete'", matches.any { it.keyword == "delete" })
-        assertTrue("Should find 'refuse'" , matches.any { it.keyword == "refuse" })
+        assertTrue("Should find 'refuse'", matches.any { it.keyword == "refuse" })
         assertEquals("actions", matches.find { it.keyword == "delete" }?.category)
     }
 
