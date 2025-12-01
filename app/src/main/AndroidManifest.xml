@@ -55,6 +55,12 @@
             android:exported="false"
             android:theme="@style/Theme.VerumOmnisForensic" />
 
+        <!-- APK Integrity Verification Activity -->
+        <activity
+            android:name=".ui.VerificationActivity"
+            android:exported="false"
+            android:theme="@style/Theme.VerumOmnisForensic" />
+
         <!-- File Provider for secure file sharing -->
         <provider
             android:name="androidx.core.content.FileProvider"

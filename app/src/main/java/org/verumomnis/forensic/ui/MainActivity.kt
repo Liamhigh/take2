@@ -69,7 +69,8 @@ class MainActivity : ComponentActivity() {
                         onCreateCase = { caseName -> createNewCase(caseName) },
                         onAddEvidence = { startScanner() },
                         onGenerateReport = { generateReport() },
-                        onViewReport = { viewReport() }
+                        onViewReport = { viewReport() },
+                        onVerifyIntegrity = { verifyIntegrity() }
                     )
                 }
             }
@@ -145,6 +146,10 @@ class MainActivity : ComponentActivity() {
         }
         startActivity(Intent(this, ReportViewerActivity::class.java))
     }
+
+    private fun verifyIntegrity() {
+        startActivity(Intent(this, VerificationActivity::class.java))
+    }
 }
 
 @Composable
@@ -153,7 +158,8 @@ fun MainScreen(
     onCreateCase: (String) -> Unit,
     onAddEvidence: () -> Unit,
     onGenerateReport: () -> Unit,
-    onViewReport: () -> Unit
+    onViewReport: () -> Unit,
+    onVerifyIntegrity: () -> Unit
 ) {
     var caseName by remember { mutableStateOf("") }
     var showCreateDialog by remember { mutableStateOf(false) }
@@ -256,6 +262,15 @@ fun MainScreen(
             enabled = currentCase != null
         ) {
             Text("View Reports")
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        OutlinedButton(
+            onClick = onVerifyIntegrity,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("🔍 Verify APK Integrity")
         }
 
         Spacer(modifier = Modifier.height(24.dp))
