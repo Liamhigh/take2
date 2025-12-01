@@ -37,10 +37,14 @@ import java.time.format.DateTimeFormatter
  * verum-constitution.json standards:
  * 
  * - PDF Standard: PDF 1.7
- * - Watermark: VERUM OMNIS 3D LOGO CENTERED
+ * - Branding: VERUM OMNIS centered header on cover page
  * - QR Code Inclusion: Yes
  * - Tamper Detection: Mandatory
  * - Admissibility Standard: Legal-grade
+ * 
+ * Note: The constitution specifies a "3D LOGO CENTERED" watermark, but
+ * this implementation uses text-based branding. A custom logo drawable
+ * can be added to enhance visual branding in future versions.
  * 
  * The generated PDF contains:
  * 1. Complete forensic narrative

@@ -195,13 +195,10 @@ class ForensicLocationService(private val context: Context) {
     @Suppress("DEPRECATION")
     private fun getAddressesFromLocation(latitude: Double, longitude: Double): List<Address> {
         return try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                // For API 33+, we'd use the async method, but for simplicity
-                // we'll use the legacy method which still works
-                geocoder.getFromLocation(latitude, longitude, 1) ?: emptyList()
-            } else {
-                geocoder.getFromLocation(latitude, longitude, 1) ?: emptyList()
-            }
+            // Using the synchronous method which works on all API levels
+            // Note: The deprecated warning is suppressed as async geocoding adds complexity
+            // for minimal benefit in an offline-first application
+            geocoder.getFromLocation(latitude, longitude, 1) ?: emptyList()
         } catch (e: Exception) {
             emptyList()
         }

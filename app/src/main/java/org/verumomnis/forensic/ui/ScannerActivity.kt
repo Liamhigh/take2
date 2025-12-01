@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import org.verumomnis.forensic.core.ForensicEngine
 import org.verumomnis.forensic.report.CaseContext
@@ -111,8 +112,8 @@ class ScannerActivity : ComponentActivity() {
     }
     
     private fun processCapture(photoFile: File, description: String, caseType: String, urgency: Urgency) {
-        // This would run in a coroutine in production
-        kotlinx.coroutines.GlobalScope.launch {
+        // Use lifecycleScope to tie coroutine to Activity lifecycle
+        lifecycleScope.launch {
             try {
                 val photoBytes = photoFile.readBytes()
                 

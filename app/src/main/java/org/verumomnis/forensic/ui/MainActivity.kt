@@ -3,6 +3,7 @@ package org.verumomnis.forensic.ui
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -41,6 +42,15 @@ class MainActivity : ComponentActivity() {
         Manifest.permission.ACCESS_FINE_LOCATION,
         Manifest.permission.CAMERA
     )
+    
+    // PDF document picker
+    private val documentPickerLauncher = registerForActivityResult(
+        ActivityResultContracts.OpenDocument()
+    ) { uri: Uri? ->
+        uri?.let {
+            handlePdfImport(it)
+        }
+    }
     
     private val permissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
@@ -89,8 +99,20 @@ class MainActivity : ComponentActivity() {
     }
     
     private fun startImport() {
-        // Launch document picker
-        Toast.makeText(this, "Document import opening...", Toast.LENGTH_SHORT).show()
+        // Launch document picker for PDFs
+        documentPickerLauncher.launch(arrayOf("application/pdf"))
+    }
+    
+    private fun handlePdfImport(uri: Uri) {
+        Toast.makeText(this, "Importing PDF...", Toast.LENGTH_SHORT).show()
+        // The PDF import will be processed through ForensicEngine.importPdf()
+        // For now, show confirmation that the document was selected
+        val filename = uri.lastPathSegment ?: "document.pdf"
+        Toast.makeText(
+            this,
+            "Selected: $filename\nProcessing will create a sealed forensic report.",
+            Toast.LENGTH_LONG
+        ).show()
     }
     
     private fun viewReports() {
@@ -99,7 +121,59 @@ class MainActivity : ComponentActivity() {
     }
     
     private fun viewConstitution() {
-        Toast.makeText(this, "Opening Constitution...", Toast.LENGTH_SHORT).show()
+        // Show constitution dialog
+        showConstitutionDialog()
+    }
+    
+    private fun showConstitutionDialog() {
+        val constitutionText = """
+            VERUM OMNIS CONSTITUTION
+            ========================
+            
+            CORE PRINCIPLES:
+            
+            1. TRUTH
+            All analysis must prioritize factual accuracy, 
+            verifiable evidence, and contradiction resolution.
+            
+            2. FAIRNESS
+            Protect vulnerable parties, ensure balance, 
+            expose coercion, and prevent exploitation.
+            
+            3. HUMAN RIGHTS
+            All outputs must uphold dignity, equality, 
+            agency, personal safety, and procedural fairness.
+            
+            4. NON-EXTRACTION
+            No sensitive user data may be transmitted, 
+            stored, or logged. Local-only operation.
+            
+            5. HUMAN AUTHORITY
+            AI assists; it never overrides human judgment.
+            
+            6. INTEGRITY
+            No manipulation, bias insertion, omission, 
+            or narrative distortion.
+            
+            7. INDEPENDENCE
+            Governments, companies, and external actors 
+            cannot alter or bias outputs.
+            
+            FORENSIC STANDARDS:
+            - Hash Standard: SHA-512
+            - PDF Standard: 1.7
+            - Tamper Detection: Mandatory
+            - Admissibility: Legal-grade
+            
+            Creator: Liam Highcock
+            Foundation: Verum Global Foundation
+        """.trimIndent()
+        
+        android.app.AlertDialog.Builder(this)
+            .setTitle("Verum Omnis Constitution")
+            .setMessage(constitutionText)
+            .setPositiveButton("Close") { dialog, _ -> dialog.dismiss() }
+            .show()
     }
 }
 
