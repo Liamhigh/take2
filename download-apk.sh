@@ -10,7 +10,7 @@ NC='\033[0m' # No Color
 
 # Configuration
 REPO="Liamhigh/take2"
-WORKFLOW_NAME="Build APK"
+WORKFLOW_NAME="Build Android APK"
 OUTPUT_DIR="downloaded-apks"
 
 # Function to print colored messages
@@ -123,14 +123,14 @@ download_artifacts() {
     
     case $choice in
         1)
-            download_artifact "$run_id" "app-debug"
+            download_artifact "$run_id" "verum-omnis-debug-apk"
             ;;
         2)
-            download_artifact "$run_id" "app-release"
+            download_artifact "$run_id" "verum-omnis-release-apk"
             ;;
         3)
-            download_artifact "$run_id" "app-debug"
-            download_artifact "$run_id" "app-release"
+            download_artifact "$run_id" "verum-omnis-debug-apk"
+            download_artifact "$run_id" "verum-omnis-release-apk"
             ;;
         4)
             print_info "Download cancelled."
