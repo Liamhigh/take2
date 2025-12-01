@@ -1,0 +1,114 @@
+{
+  "version": "1.0",
+  "description": "Evidence Extraction Protocol for Verum Omnis Forensic Analysis",
+  "step1_keywords": {
+    "description": "Primary keywords to scan for during initial evidence analysis",
+    "administrative": [
+      "admin",
+      "administrator",
+      "access",
+      "permission",
+      "authorization",
+      "credentials"
+    ],
+    "actions": [
+      "deny",
+      "refuse",
+      "delete",
+      "remove",
+      "block",
+      "restrict",
+      "suspend"
+    ],
+    "documents": [
+      "forged",
+      "fake",
+      "falsified",
+      "invoice",
+      "contract",
+      "agreement",
+      "receipt"
+    ],
+    "financial": [
+      "payment",
+      "transfer",
+      "profit",
+      "dividend",
+      "transaction",
+      "account",
+      "balance"
+    ],
+    "corporate": [
+      "meeting",
+      "resolution",
+      "board",
+      "shareholder",
+      "director",
+      "company"
+    ]
+  },
+  "step2_tags": {
+    "description": "Forensic tags to apply based on keyword matches",
+    "criminal": [
+      "#Cybercrime",
+      "#Fraud",
+      "#Harassment",
+      "#Theft",
+      "#Forgery"
+    ],
+    "corporate": [
+      "#Oppression",
+      "#FiduciaryBreach",
+      "#Mismanagement",
+      "#Exclusion"
+    ],
+    "civil": [
+      "#ContractBreach",
+      "#Negligence",
+      "#Defamation"
+    ],
+    "procedural": [
+      "#EvidenceTampering",
+      "#ChainOfCustody",
+      "#TimelineInconsistency"
+    ]
+  },
+  "step3_scoring": {
+    "description": "Scoring weights for evidence relevance and severity",
+    "low": {
+      "weight": 1,
+      "min_matches": 1,
+      "max_matches": 2,
+      "color": "#4CAF50",
+      "label": "Minor Concern"
+    },
+    "medium": {
+      "weight": 2,
+      "min_matches": 3,
+      "max_matches": 5,
+      "color": "#FF9800",
+      "label": "Moderate Concern"
+    },
+    "high": {
+      "weight": 3,
+      "min_matches": 6,
+      "max_matches": null,
+      "color": "#F44336",
+      "label": "Critical Concern"
+    }
+  },
+  "extraction_settings": {
+    "case_sensitive": false,
+    "whole_word_match": false,
+    "include_synonyms": true,
+    "max_context_chars": 200,
+    "highlight_matches": true
+  },
+  "output_format": {
+    "include_timestamp": true,
+    "include_location": true,
+    "include_context": true,
+    "include_score": true,
+    "include_tags": true
+  }
+}

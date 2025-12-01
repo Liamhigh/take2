@@ -1,0 +1,155 @@
+{
+  "version": "1.0",
+  "description": "Legal Subject Classification for Verum Omnis Forensic Analysis",
+  "categories": {
+    "criminal": {
+      "description": "Criminal law matters requiring potential police/prosecution involvement",
+      "subjects": [
+        {
+          "id": "cybercrime",
+          "name": "Cybercrime",
+          "severity": "CRITICAL",
+          "keywords": [
+            "unauthorized access",
+            "hacking",
+            "data breach",
+            "computer fraud",
+            "phishing",
+            "malware",
+            "ransomware",
+            "identity theft",
+            "Gmail access",
+            "account takeover"
+          ]
+        },
+        {
+          "id": "fraud",
+          "name": "Fraud",
+          "severity": "CRITICAL",
+          "keywords": [
+            "fraud",
+            "fraudulent",
+            "forged",
+            "falsified",
+            "misrepresentation",
+            "deceit",
+            "embezzlement",
+            "theft",
+            "larceny"
+          ]
+        },
+        {
+          "id": "harassment",
+          "name": "Criminal Harassment",
+          "severity": "HIGH",
+          "keywords": [
+            "harassment",
+            "stalking",
+            "threats",
+            "intimidation",
+            "coercion",
+            "extortion",
+            "blackmail"
+          ]
+        }
+      ]
+    },
+    "corporate": {
+      "description": "Corporate law and governance matters",
+      "subjects": [
+        {
+          "id": "shareholder_oppression",
+          "name": "Shareholder Oppression",
+          "severity": "HIGH",
+          "keywords": [
+            "denied meeting",
+            "withheld financial",
+            "exclusion",
+            "minority shareholder",
+            "board exclusion",
+            "dividend denial",
+            "information withholding"
+          ]
+        },
+        {
+          "id": "fiduciary_breach",
+          "name": "Breach of Fiduciary Duty",
+          "severity": "HIGH",
+          "keywords": [
+            "self-dealing",
+            "conflict of interest",
+            "misappropriation",
+            "breach of trust",
+            "negligence",
+            "director misconduct"
+          ]
+        }
+      ]
+    },
+    "civil": {
+      "description": "Civil law matters for private legal action",
+      "subjects": [
+        {
+          "id": "contract_breach",
+          "name": "Breach of Contract",
+          "severity": "MEDIUM",
+          "keywords": [
+            "breach of contract",
+            "non-performance",
+            "default",
+            "violation",
+            "failed to deliver",
+            "broken agreement"
+          ]
+        },
+        {
+          "id": "defamation",
+          "name": "Defamation",
+          "severity": "MEDIUM",
+          "keywords": [
+            "defamation",
+            "libel",
+            "slander",
+            "false statement",
+            "reputation damage",
+            "malicious publication"
+          ]
+        },
+        {
+          "id": "negligence",
+          "name": "Negligence",
+          "severity": "MEDIUM",
+          "keywords": [
+            "negligence",
+            "duty of care",
+            "breach of duty",
+            "damages",
+            "causation"
+          ]
+        }
+      ]
+    }
+  },
+  "severity_levels": {
+    "CRITICAL": {
+      "weight": 4,
+      "description": "Requires immediate attention, potential criminal liability",
+      "action": "Recommend immediate legal consultation and potential law enforcement referral"
+    },
+    "HIGH": {
+      "weight": 3,
+      "description": "Significant legal exposure, urgent attention needed",
+      "action": "Recommend legal consultation within 48 hours"
+    },
+    "MEDIUM": {
+      "weight": 2,
+      "description": "Moderate legal concern, should be addressed",
+      "action": "Recommend legal review within reasonable timeframe"
+    },
+    "LOW": {
+      "weight": 1,
+      "description": "Minor concern, may not require immediate action",
+      "action": "Monitor and document for potential future use"
+    }
+  }
+}

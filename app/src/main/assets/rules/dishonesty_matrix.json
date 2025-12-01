@@ -1,0 +1,129 @@
+{
+  "version": "1.0",
+  "description": "Dishonesty Detection Matrix for Verum Omnis Forensic Analysis",
+  "contradictions": {
+    "weight": 3,
+    "examples": [
+      "Opposing statements vs evidence",
+      "Timeline inconsistencies"
+    ],
+    "patterns": [
+      {
+        "id": "deal_invoice_contradiction",
+        "regex": "no deal.*invoice|invoice.*no deal",
+        "description": "Contradiction between denying a deal and having an invoice"
+      },
+      {
+        "id": "denial_admission",
+        "regex": "denied.*admitted|admitted.*denied",
+        "description": "Subject both denied and admitted same fact"
+      },
+      {
+        "id": "refusal_acceptance",
+        "regex": "refused.*accepted|accepted.*refused",
+        "description": "Contradiction in acceptance/refusal of terms"
+      },
+      {
+        "id": "presence_absence",
+        "regex": "was present.*was not present|was not present.*was present",
+        "description": "Contradictory claims about presence at event"
+      },
+      {
+        "id": "timeline_conflict",
+        "regex": "before.*after.*same event",
+        "description": "Conflicting timeline claims"
+      }
+    ]
+  },
+  "omissions": {
+    "weight": 2,
+    "examples": [
+      "Cropped screenshots",
+      "Missing pages",
+      "Selective quoting"
+    ],
+    "patterns": [
+      {
+        "id": "cropped_evidence",
+        "regex": "cropped|cut off|partial|incomplete",
+        "description": "Evidence appears to have been selectively edited"
+      },
+      {
+        "id": "selective_editing",
+        "regex": "selective.*edit|edited.*version|modified.*original",
+        "description": "Evidence of intentional editing to change meaning"
+      },
+      {
+        "id": "missing_context",
+        "regex": "missing context|out of context|without context",
+        "description": "Information presented without necessary context"
+      },
+      {
+        "id": "redaction_unexplained",
+        "regex": "redacted|blacked out|removed|hidden",
+        "description": "Unexplained redactions that may hide relevant information"
+      }
+    ]
+  },
+  "fabrications": {
+    "weight": 4,
+    "examples": [
+      "Forged signatures",
+      "Created documents",
+      "False statements"
+    ],
+    "patterns": [
+      {
+        "id": "forged_document",
+        "regex": "forged|fake|counterfeit|fabricated",
+        "description": "Document appears to be manufactured"
+      },
+      {
+        "id": "false_signature",
+        "regex": "signature.*mismatch|unauthorized.*signature|forged.*signature",
+        "description": "Signature appears to be unauthorized or forged"
+      },
+      {
+        "id": "backdated",
+        "regex": "backdated|antedated|false date|wrong date",
+        "description": "Document date appears to be falsified"
+      },
+      {
+        "id": "metadata_mismatch",
+        "regex": "metadata.*inconsistent|creation date.*mismatch",
+        "description": "Document metadata does not match claimed date"
+      }
+    ]
+  },
+  "deflections": {
+    "weight": 2,
+    "examples": [
+      "Blaming others",
+      "Claiming ignorance",
+      "Diversion tactics"
+    ],
+    "patterns": [
+      {
+        "id": "responsibility_shift",
+        "regex": "not my (responsibility|fault)|someone else|third party",
+        "description": "Attempt to shift responsibility to others"
+      },
+      {
+        "id": "claimed_ignorance",
+        "regex": "I was not aware|didn't know|wasn't informed",
+        "description": "Claims of ignorance that may be suspicious"
+      },
+      {
+        "id": "miscommunication",
+        "regex": "misunderstood|miscommunication|wrong interpretation",
+        "description": "Attempting to attribute issues to miscommunication"
+      }
+    ]
+  },
+  "scoring": {
+    "threshold_low": 3,
+    "threshold_medium": 6,
+    "threshold_high": 10,
+    "max_score": 100
+  }
+}

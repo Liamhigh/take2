@@ -1,0 +1,188 @@
+{
+  "version": "5.1.1",
+  "description": "Verum Omnis Forensic Analysis Rules",
+  "hash_standard": "SHA-512",
+  "legal_subjects": [
+    {
+      "name": "Shareholder Oppression",
+      "keywords": [
+        "denied meeting",
+        "withheld financial",
+        "exclusion",
+        "minority shareholder",
+        "board exclusion"
+      ],
+      "severity": "HIGH",
+      "category": "corporate"
+    },
+    {
+      "name": "Breach of Fiduciary Duty",
+      "keywords": [
+        "self-dealing",
+        "conflict of interest",
+        "misappropriation",
+        "breach of trust",
+        "negligence"
+      ],
+      "severity": "HIGH",
+      "category": "fiduciary"
+    },
+    {
+      "name": "Cybercrime",
+      "keywords": [
+        "unauthorized access",
+        "Gmail",
+        "device logs",
+        "hacking",
+        "data breach",
+        "phishing"
+      ],
+      "severity": "CRITICAL",
+      "category": "criminal"
+    },
+    {
+      "name": "Fraud",
+      "keywords": [
+        "forged",
+        "falsified",
+        "misrepresentation",
+        "deceit",
+        "fraudulent"
+      ],
+      "severity": "CRITICAL",
+      "category": "criminal"
+    },
+    {
+      "name": "Contract Breach",
+      "keywords": [
+        "breach of contract",
+        "non-performance",
+        "default",
+        "violation"
+      ],
+      "severity": "MEDIUM",
+      "category": "civil"
+    },
+    {
+      "name": "Defamation",
+      "keywords": [
+        "defamation",
+        "libel",
+        "slander",
+        "false statement",
+        "reputation damage"
+      ],
+      "severity": "MEDIUM",
+      "category": "civil"
+    },
+    {
+      "name": "Harassment",
+      "keywords": [
+        "harassment",
+        "intimidation",
+        "threats",
+        "bullying",
+        "coercion"
+      ],
+      "severity": "HIGH",
+      "category": "criminal"
+    }
+  ],
+  "dishonesty_matrix": {
+    "contradictions": {
+      "weight": 3,
+      "description": "Statements that directly contradict each other or evidence",
+      "patterns": [
+        "no deal.*invoice",
+        "denied.*admitted",
+        "refused.*accepted",
+        "never.*always",
+        "no contact.*communication"
+      ]
+    },
+    "omissions": {
+      "weight": 2,
+      "description": "Evidence of intentional exclusion of relevant information",
+      "patterns": [
+        "cropped screenshot",
+        "selective editing",
+        "missing context",
+        "partial disclosure",
+        "redacted without explanation"
+      ]
+    },
+    "fabrications": {
+      "weight": 4,
+      "description": "Evidence of manufactured or false information",
+      "patterns": [
+        "forged document",
+        "fabricated evidence",
+        "false testimony",
+        "manufactured record",
+        "backdated"
+      ]
+    },
+    "deflections": {
+      "weight": 2,
+      "description": "Attempts to redirect blame or avoid accountability",
+      "patterns": [
+        "not my responsibility",
+        "someone else",
+        "I was not aware",
+        "miscommunication"
+      ]
+    }
+  },
+  "extraction_protocol": {
+    "step1_keywords": [
+      "admin",
+      "deny",
+      "forged",
+      "access",
+      "delete",
+      "refuse",
+      "invoice",
+      "profit",
+      "payment",
+      "transfer",
+      "meeting",
+      "resolution",
+      "agreement"
+    ],
+    "step2_tags": [
+      "#Cybercrime",
+      "#Fraud",
+      "#Oppression",
+      "#FiduciaryBreach",
+      "#ContractBreach",
+      "#Harassment",
+      "#Defamation"
+    ],
+    "step3_scoring": {
+      "low": {
+        "weight": 1,
+        "threshold": 2
+      },
+      "medium": {
+        "weight": 2,
+        "threshold": 5
+      },
+      "high": {
+        "weight": 3,
+        "threshold": 10
+      }
+    }
+  },
+  "narrative_template": {
+    "sections": [
+      "executive_summary",
+      "timeline_analysis",
+      "evidence_facts",
+      "contradiction_analysis",
+      "legal_subject_assessment",
+      "integrity_assessment",
+      "recommendations"
+    ],
+    "format": "human_and_machine_readable"
+  }
+}
