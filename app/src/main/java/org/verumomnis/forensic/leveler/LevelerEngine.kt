@@ -228,6 +228,15 @@ class LevelerEngine {
             }
         }
 
+        // Upgrade severity of highest-occurring pattern if total evasion count is high
+        if (totalEvasionScore >= 5 && patterns.isNotEmpty() && patterns.none { it.severity == Severity.HIGH }) {
+            val maxPattern = patterns.maxByOrNull { it.occurrences }
+            if (maxPattern != null) {
+                val index = patterns.indexOf(maxPattern)
+                patterns[index] = maxPattern.copy(severity = Severity.HIGH)
+            }
+        }
+
         return patterns
     }
 
