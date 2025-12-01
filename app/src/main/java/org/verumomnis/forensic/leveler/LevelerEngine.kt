@@ -230,11 +230,9 @@ class LevelerEngine {
 
         // Upgrade severity of highest-occurring pattern if total evasion count is high
         if (totalEvasionScore >= 5 && patterns.isNotEmpty() && patterns.none { it.severity == Severity.HIGH }) {
-            val maxPattern = patterns.maxByOrNull { it.occurrences }
-            if (maxPattern != null) {
-                val index = patterns.indexOf(maxPattern)
-                patterns[index] = maxPattern.copy(severity = Severity.HIGH)
-            }
+            // Find index and pattern with max occurrences in single pass
+            val (maxIndex, _) = patterns.withIndex().maxByOrNull { it.value.occurrences } ?: return patterns
+            patterns[maxIndex] = patterns[maxIndex].copy(severity = Severity.HIGH)
         }
 
         return patterns
