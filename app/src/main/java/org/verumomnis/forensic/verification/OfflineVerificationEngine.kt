@@ -203,20 +203,14 @@ class OfflineVerificationEngine {
         val deviceTime = Instant.now()
         val deviceZone = ZoneId.systemDefault()
 
-        // Check if timestamp is in the future
-        val futureDeviation = Duration.between(deviceTime, timestamp)
-        val isFuture = futureDeviation.seconds > allowedFutureSeconds
+        // Check if timestamp is in the future beyond allowed threshold
+        val isFuture = isTimestampInFuture(timestamp, deviceTime, allowedFutureSeconds)
 
-        // Check if timestamp is too old
-        val age = Duration.between(timestamp, deviceTime)
-        val isTooOld = age > maxAge
+        // Check if timestamp is too old (exceeds maximum age)
+        val isTooOld = isTimestampTooOld(timestamp, deviceTime, maxAge)
 
-        // Calculate the deviation from device time
-        val deviation = if (timestamp.isAfter(deviceTime)) {
-            futureDeviation
-        } else {
-            Duration.between(timestamp, deviceTime).negated()
-        }
+        // Calculate deviation: positive = future, negative = past
+        val deviation = calculateTimestampDeviation(timestamp, deviceTime)
 
         val isValid = !isFuture && !isTooOld
 
@@ -230,11 +224,64 @@ class OfflineVerificationEngine {
             isTooOld = isTooOld,
             verificationTimestamp = deviceTime,
             message = when {
-                isFuture -> "INVALID: Timestamp is ${futureDeviation.seconds} seconds in the future"
-                isTooOld -> "WARNING: Timestamp is ${age.toDays()} days old"
+                isFuture -> "INVALID: Timestamp is ${Duration.between(deviceTime, timestamp).seconds} seconds in the future"
+                isTooOld -> "WARNING: Timestamp is ${Duration.between(timestamp, deviceTime).toDays()} days old"
                 else -> "VALID: Timestamp is within acceptable range"
             }
         )
+    }
+
+    /**
+     * Checks if a timestamp is in the future beyond the allowed threshold.
+     *
+     * @param timestamp The timestamp to check
+     * @param deviceTime Current device time
+     * @param allowedFutureSeconds Maximum allowed seconds in the future
+     * @return true if timestamp is too far in the future
+     */
+    private fun isTimestampInFuture(
+        timestamp: Instant,
+        deviceTime: Instant,
+        allowedFutureSeconds: Long
+    ): Boolean {
+        if (!timestamp.isAfter(deviceTime)) return false
+        val futureDeviation = Duration.between(deviceTime, timestamp)
+        return futureDeviation.seconds > allowedFutureSeconds
+    }
+
+    /**
+     * Checks if a timestamp is too old (exceeds maximum allowed age).
+     *
+     * @param timestamp The timestamp to check
+     * @param deviceTime Current device time
+     * @param maxAge Maximum allowed age
+     * @return true if timestamp exceeds maximum age
+     */
+    private fun isTimestampTooOld(
+        timestamp: Instant,
+        deviceTime: Instant,
+        maxAge: Duration
+    ): Boolean {
+        if (timestamp.isAfter(deviceTime)) return false
+        val age = Duration.between(timestamp, deviceTime)
+        return age > maxAge
+    }
+
+    /**
+     * Calculates the deviation of a timestamp from device time.
+     *
+     * @param timestamp The timestamp to compare
+     * @param deviceTime Current device time
+     * @return Duration representing deviation (positive = future, negative = past)
+     */
+    private fun calculateTimestampDeviation(timestamp: Instant, deviceTime: Instant): Duration {
+        return if (timestamp.isAfter(deviceTime)) {
+            // Timestamp is in the future: positive deviation
+            Duration.between(deviceTime, timestamp)
+        } else {
+            // Timestamp is in the past: negative deviation
+            Duration.between(deviceTime, timestamp)
+        }
     }
 
     // =========================================================================

@@ -206,6 +206,9 @@ class CryptographicSealingEngine {
         val metadataHash = computeHash(metadataPayload)
 
         // Layer 3: HMAC-SHA512 seal combining both hashes
+        // NOTE: A unique salt is generated for each seal intentionally for forensic purposes.
+        // This ensures each seal is cryptographically unique even for identical content,
+        // which is required for proper evidence chain differentiation in court proceedings.
         val combinedPayload = "$contentHash|$metadataHash|${timestamp.epochSecond}|$VERSION"
         val salt = ByteArray(SALT_LENGTH)
         secureRandom.nextBytes(salt)

@@ -51,12 +51,24 @@ class ForensicPdfGenerator(private val context: Context) {
 
     /**
      * Generates a court-ready forensic PDF report for a case
+     *
+     * TODO: For full PDF/A-3B archival compliance, this implementation should be enhanced to use
+     * iText PDF library with proper PDF/A-3B generation including:
+     * - XMP metadata embedding
+     * - ICC color profile embedding
+     * - Font embedding (subset or full)
+     * - PDF/A-3B conformance level specification
+     * - Document structure tags for accessibility
+     *
+     * Current implementation generates a text-based report that can be converted to PDF/A-3B
+     * using external tools for court submission.
      */
     fun generateReport(case: ForensicCase, narrative: String): File {
         val reportFile = File(case.directory, "report_${System.currentTimeMillis()}.pdf")
 
         FileOutputStream(reportFile).use { fos ->
-            // Generate PDF content as text (simplified - in production use iText PDF)
+            // Generate PDF content as text-based report
+            // For production PDF/A-3B compliance, use iText PDF with proper archival settings
             val pdfContent = buildCourtReadyPdfContent(case, narrative)
             fos.write(pdfContent.toByteArray())
         }
