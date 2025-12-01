@@ -145,13 +145,13 @@ if [ "$cygwin" = "true" -o "$msys" = "true" ] ; then
     if [ "$GRADLE_CYGPATTERN" != "" ] ; then
         OURCYGPATTERN="$OURCYGPATTERN|($GRADLE_CYGPATTERN)"
     fi
-    # Now convert the arguments - kass://es /c /a /p etc.
-    # Alarm /c /b etc.
+    # Now convert the arguments - handles paths like /c /a /p etc.
+    # Also handles paths like /c /b etc.
     i=0
     for arg in "$@" ; do
         CHECK=`echo "$arg"|egrep -c "$OURCYGPATTERN" -`
-        CHECK2=`echo "$arg"|egrep -c "^-"`                                 ### Annoying regex
-        if [ $CHECK -ne 0 ] && [ $CHECK2 -eq 0 ] ; then                    ### Alarm /p /o
+        CHECK2=`echo "$arg"|egrep -c "^-"`
+        if [ $CHECK -ne 0 ] && [ $CHECK2 -eq 0 ] ; then
             eval `echo args$i`=`cygpath --path --ignore --mixed "$arg"`
         else
             eval `echo args$i`="\"$arg\""
