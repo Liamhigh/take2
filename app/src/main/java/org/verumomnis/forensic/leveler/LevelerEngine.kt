@@ -52,6 +52,13 @@ class LevelerEngine {
             "payment", "invoice", "received", "transferred",
             "deposit", "withdrawal"
         )
+
+        /**
+         * Threshold for detecting suspicious date ordering in document lines.
+         * If dates appear more than this many lines apart in reverse order,
+         * it may indicate timeline manipulation.
+         */
+        private const val DATE_ORDER_THRESHOLD_LINES = 10
     }
 
     /**
@@ -154,9 +161,14 @@ class LevelerEngine {
             }
 
             // Check for denial/confirmation statements
-            if (lowerLine.contains("never") || lowerLine.contains("always") ||
-                lowerLine.contains("did not") || lowerLine.contains("didn't")
-            ) {
+            val hasNegation = lowerLine.contains("never") || lowerLine.contains("always") ||
+                lowerLine.contains("did not") || lowerLine.contains("didn't") ||
+                lowerLine.contains("not") || lowerLine.contains("no ")
+            val hasAffirmation = lowerLine.contains("yes") || lowerLine.contains("did ") ||
+                lowerLine.contains("received") || lowerLine.contains("paid") ||
+                lowerLine.contains("confirmed") || lowerLine.contains("attended")
+
+            if (hasNegation || hasAffirmation) {
                 statements.getOrPut("denials") { mutableListOf() }.add(index to line)
             }
         }
@@ -246,7 +258,7 @@ class LevelerEngine {
                 val (lineIdx2, _) = datesFound[j]
 
                 // If a later document line references an earlier date, it might be suspicious
-                if (lineIdx1 > lineIdx2 + 10) { // Arbitrary threshold
+                if (lineIdx1 > lineIdx2 + DATE_ORDER_THRESHOLD_LINES) {
                     issues.add(
                         TimelineIssue(
                             description = "Date reference order may indicate timeline manipulation",

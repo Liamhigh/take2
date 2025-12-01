@@ -45,8 +45,24 @@ import java.util.*
  */
 class ScannerActivity : ComponentActivity() {
 
+    companion object {
+        // Allowed MIME types for document upload (restricted for security)
+        private val ALLOWED_MIME_TYPES = arrayOf(
+            "application/pdf",
+            "image/jpeg",
+            "image/png",
+            "image/webp",
+            "image/gif",
+            "text/plain",
+            "text/csv"
+        )
+    }
+
     private var currentPhotoPath: String? = null
     private var currentPhotoUri: Uri? = null
+
+    // Singleton Leveler Engine to avoid creating new instances for each analysis
+    private val levelerEngine by lazy { LevelerEngine() }
 
     // Permission launcher for camera
     private val cameraPermissionLauncher = registerForActivityResult(
@@ -135,17 +151,8 @@ class ScannerActivity : ComponentActivity() {
 
     private fun openDocumentPicker() {
         try {
-            // Open document picker with multiple MIME types
-            documentPickerLauncher.launch(
-                arrayOf(
-                    "application/pdf",
-                    "image/*",
-                    "text/plain",
-                    "text/*",
-                    "application/zip",
-                    "application/octet-stream"
-                )
-            )
+            // Open document picker with restricted MIME types for security
+            documentPickerLauncher.launch(ALLOWED_MIME_TYPES)
         } catch (e: Exception) {
             Toast.makeText(
                 this,
@@ -242,8 +249,7 @@ class ScannerActivity : ComponentActivity() {
                         val levelerResult = if (mimeType.startsWith("text/") ||
                             fileName.endsWith(".txt") || fileName.endsWith(".chat")) {
                             val content = String(fileBytes, Charsets.UTF_8)
-                            val leveler = LevelerEngine()
-                            leveler.analyzeDocument(content)
+                            levelerEngine.analyzeDocument(content)
                         } else {
                             null
                         }
@@ -372,9 +378,8 @@ class ScannerActivity : ComponentActivity() {
     private fun addTextEvidence(description: String, content: String) {
         lifecycleScope.launch {
             try {
-                // Run Leveler analysis on text content
-                val leveler = LevelerEngine()
-                val analysis = leveler.analyzeDocument(content)
+                // Run Leveler analysis on text content using the singleton instance
+                val analysis = levelerEngine.analyzeDocument(content)
 
                 Toast.makeText(
                     this@ScannerActivity,
