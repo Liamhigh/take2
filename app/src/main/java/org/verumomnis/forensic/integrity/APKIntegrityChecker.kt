@@ -18,6 +18,16 @@ import java.util.TimeZone
  * 
  * The APK hash serves as the cryptographic anchor for the chain of custody,
  * establishing that all forensic analysis originates from an untampered tool.
+ * 
+ * SECURITY MODEL:
+ * The expected hash is embedded in the source code intentionally. This is a standard
+ * approach for self-verification in forensic tools where:
+ * 1. The source code and APK are publicly auditable
+ * 2. The hash can be independently verified by any forensic expert using sha256sum
+ * 3. The primary threat model is runtime tampering, not source code compromise
+ * 4. For additional security, use Android App Signing verification or code attestation
+ * 
+ * Independent verification: sha256sum verum-omnis-forensic-engine.apk
  */
 object APKIntegrityChecker {
     

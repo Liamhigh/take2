@@ -1,7 +1,6 @@
 package org.verumomnis.forensic.integrity
 
 import org.verumomnis.forensic.crypto.CryptographicSealingEngine
-import java.security.MessageDigest
 
 /**
  * Chain of Trust implementation for forensic evidence.
@@ -14,6 +13,11 @@ import java.security.MessageDigest
  * - admissibility_standard: legal-grade, contradiction-free, complete evidence mapping
  */
 class ChainOfTrust {
+    
+    companion object {
+        /** SHA-256 produces 64 hex character hashes */
+        private const val SHA256_HASH_LENGTH = 64
+    }
     
     private val sealingEngine = CryptographicSealingEngine()
     
@@ -31,7 +35,7 @@ class ChainOfTrust {
                 id = "ROOT",
                 type = ChainType.APK_INTEGRITY,
                 hash = APKIntegrityChecker.EXPECTED_APK_HASH,
-                previousHash = "0".repeat(64),
+                previousHash = "0".repeat(SHA256_HASH_LENGTH),
                 timestamp = System.currentTimeMillis(),
                 description = "Verum Omnis APK Root Hash (SHA-256)"
             )
