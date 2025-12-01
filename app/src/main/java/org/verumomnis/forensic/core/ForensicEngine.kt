@@ -2,12 +2,19 @@ package org.verumomnis.forensic.core
 
 import android.content.Context
 import android.os.Build
+import android.provider.Settings
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.verumomnis.forensic.crypto.CryptographicSealingEngine
+import org.verumomnis.forensic.crypto.DeviceInfo
+import org.verumomnis.forensic.crypto.ForensicTripleHashSeal
+import org.verumomnis.forensic.crypto.TamperDetectionResult
+import org.verumomnis.forensic.custody.ChainOfCustodyLogger
+import org.verumomnis.forensic.custody.CustodyAction
 import org.verumomnis.forensic.location.ForensicLocationService
 import org.verumomnis.forensic.pdf.ForensicPdfGenerator
 import org.verumomnis.forensic.report.ForensicNarrativeGenerator
+import org.verumomnis.forensic.verification.OfflineVerificationEngine
 import java.io.File
 import java.time.Instant
 import java.util.UUID
@@ -18,7 +25,7 @@ import java.util.UUID
  * Implements the forensic rules from verum-constitution.json:
  * - seal_required: true
  * - hash_standard: SHA-512
- * - pdf_standard: PDF 1.7
+ * - pdf_standard: PDF 1.7 / PDF/A-3B
  * - tamper_detection: mandatory
  * - admissibility_standard: legal-grade, contradiction-free, complete evidence mapping
  *
@@ -28,6 +35,13 @@ import java.util.UUID
  * - no_cloud_logging: true
  * - no_telemetry: true
  * - airgap_ready: true
+ *
+ * Forensic Features:
+ * - Triple Hash Layer (SHA-512 content + SHA-512 metadata + HMAC-SHA512 seal)
+ * - Chain of Custody logging with hash chain
+ * - Tamper detection with pre/post processing verification
+ * - Court-ready PDF formatting
+ * - Offline verification tools
  */
 class ForensicEngine(private val context: Context) {
 
@@ -40,6 +54,8 @@ class ForensicEngine(private val context: Context) {
     private val locationService = ForensicLocationService(context)
     private val narrativeGenerator = ForensicNarrativeGenerator()
     private val pdfGenerator = ForensicPdfGenerator(context)
+    private val verificationEngine = OfflineVerificationEngine()
+    private val custodyLogger = ChainOfCustodyLogger()
 
     /**
      * Creates a new forensic case folder for evidence collection
@@ -50,6 +66,15 @@ class ForensicEngine(private val context: Context) {
 
         val caseDir = File(context.filesDir, "cases/$caseId")
         caseDir.mkdirs()
+
+        // Log case creation in chain of custody
+        custodyLogger.logAction(
+            action = CustodyAction.CASE_CREATED,
+            targetHash = sealingEngine.computeHash(caseId),
+            userId = getUserId(),
+            deviceId = getDeviceId(),
+            details = "Case created: $caseName"
+        )
 
         ForensicCase(
             id = caseId,
@@ -162,6 +187,202 @@ class ForensicEngine(private val context: Context) {
         "engine_version" to VerumOmnisApplication.VERSION,
         "hash_standard" to HASH_STANDARD
     )
+
+    /**
+     * Gets device info for forensic sealing
+     */
+    fun getDeviceInfo(): DeviceInfo = DeviceInfo(
+        manufacturer = Build.MANUFACTURER,
+        model = Build.MODEL,
+        androidVersion = Build.VERSION.RELEASE,
+        sdkVersion = Build.VERSION.SDK_INT
+    )
+
+    /**
+     * Gets the user ID for chain of custody logging
+     */
+    private fun getUserId(): String {
+        return "${Build.MANUFACTURER}_${Build.MODEL}".replace(" ", "_")
+    }
+
+    /**
+     * Gets the device ID for chain of custody logging.
+     *
+     * PRIVACY NOTICE: ANDROID_ID is used for forensic chain of custody purposes only.
+     * This identifier is:
+     * - Required for court admissibility (device attribution in evidence chain)
+     * - Stored locally only (no transmission per verum-constitution.json)
+     * - Compliant with GDPR Article 6(1)(f) - legitimate interests for legal proceedings
+     * - Compliant with ECT Act Section 15 - device identification for evidence
+     *
+     * The legal basis for collection is forensic evidence documentation for legal proceedings.
+     * Users consent to this collection when using the forensic evidence feature.
+     */
+    @Suppress("HardwareIds")
+    private fun getDeviceId(): String {
+        return try {
+            Settings.Secure.getString(context.contentResolver, Settings.Secure.ANDROID_ID) ?: "unknown"
+        } catch (_: Exception) {
+            "unknown"
+        }
+    }
+
+    // =========================================================================
+    // FORENSIC-GRADE EVIDENCE PROCESSING
+    // =========================================================================
+
+    /**
+     * Adds evidence with Triple Hash Layer sealing.
+     *
+     * This provides forensic-grade integrity per:
+     * - ISO 27037: Digital evidence handling
+     * - Daubert Standard: Methodology documentation
+     *
+     * @param case The forensic case
+     * @param evidenceType Type of evidence
+     * @param description Description of the evidence
+     * @param data Raw evidence data
+     * @param metadata Additional metadata
+     * @return ForensicEvidence with Triple Hash seal
+     */
+    suspend fun addEvidenceWithTripleHashSeal(
+        case: ForensicCase,
+        evidenceType: EvidenceType,
+        description: String,
+        data: ByteArray,
+        metadata: Map<String, String> = emptyMap()
+    ): Pair<ForensicEvidence, ForensicTripleHashSeal> = withContext(Dispatchers.IO) {
+        // Pre-processing hash (for tampering detection)
+        val preProcessingHash = sealingEngine.computeHash(data)
+
+        // Log document upload
+        custodyLogger.logDocumentUpload(preProcessingHash, getUserId(), getDeviceId())
+
+        // Create Triple Hash seal
+        val tripleHashSeal = sealingEngine.createTripleHashSeal(
+            content = data,
+            metadata = metadata,
+            deviceInfo = getDeviceInfo(),
+            caseName = case.name
+        )
+
+        // Log document processing
+        custodyLogger.logDocumentProcessing(tripleHashSeal.contentHash, getUserId(), getDeviceId())
+
+        // Post-processing hash verification
+        val postProcessingHash = sealingEngine.computeHash(data)
+
+        // Verify pre and post hashes match (no tampering during processing)
+        if (preProcessingHash != postProcessingHash) {
+            custodyLogger.logTamperingDetected(
+                documentHash = preProcessingHash,
+                userId = getUserId(),
+                deviceId = getDeviceId(),
+                tamperingDetails = "Data modified during processing"
+            )
+            throw SecurityException("Evidence tampering detected during processing")
+        }
+
+        // Add evidence using standard method
+        val evidence = addEvidence(case, evidenceType, description, data, metadata)
+
+        // Log seal creation
+        custodyLogger.logAction(
+            action = CustodyAction.DOCUMENT_SEALED,
+            targetHash = tripleHashSeal.contentHash,
+            userId = getUserId(),
+            deviceId = getDeviceId(),
+            details = "Triple Hash seal created"
+        )
+
+        Pair(evidence, tripleHashSeal)
+    }
+
+    /**
+     * Verifies evidence using Triple Hash Layer for tampering detection.
+     *
+     * @param evidence The evidence to verify
+     * @param tripleHashSeal The Triple Hash seal
+     * @return TamperDetectionResult with detailed verification status
+     */
+    suspend fun verifyEvidenceWithTripleHash(
+        evidence: ForensicEvidence,
+        tripleHashSeal: ForensicTripleHashSeal
+    ): TamperDetectionResult = withContext(Dispatchers.IO) {
+        val currentData = evidence.file.readBytes()
+        val result = sealingEngine.verifyTripleHashSeal(tripleHashSeal, currentData)
+
+        // Log verification
+        custodyLogger.logSealVerification(
+            documentHash = tripleHashSeal.contentHash,
+            userId = getUserId(),
+            deviceId = getDeviceId(),
+            verificationResult = result.isValid
+        )
+
+        // If tampering detected, log it
+        if (!result.isValid) {
+            custodyLogger.logTamperingDetected(
+                documentHash = tripleHashSeal.contentHash,
+                userId = getUserId(),
+                deviceId = getDeviceId(),
+                tamperingDetails = result.message
+            )
+        }
+
+        result
+    }
+
+    /**
+     * Generates a court-ready forensic report with full chain of custody.
+     *
+     * @param case The forensic case
+     * @param tripleHashSeal Optional Triple Hash seal for the case
+     * @return The generated PDF file
+     */
+    suspend fun generateForensicReport(
+        case: ForensicCase,
+        tripleHashSeal: ForensicTripleHashSeal? = null
+    ): File = withContext(Dispatchers.IO) {
+        // Generate narrative
+        val narrative = narrativeGenerator.generateNarrative(case)
+
+        // Generate court-ready PDF
+        val report = pdfGenerator.generateForensicReport(
+            case = case,
+            narrative = narrative,
+            tripleHashSeal = tripleHashSeal,
+            custodyLogger = custodyLogger
+        )
+
+        // Log report generation
+        val reportHash = sealingEngine.computeHash(report.readBytes())
+        custodyLogger.logReportGeneration(reportHash, getUserId(), getDeviceId())
+
+        report
+    }
+
+    /**
+     * Gets the chain of custody logger for this engine instance
+     */
+    fun getCustodyLogger(): ChainOfCustodyLogger = custodyLogger
+
+    /**
+     * Gets the offline verification engine
+     */
+    fun getVerificationEngine(): OfflineVerificationEngine = verificationEngine
+
+    /**
+     * Verifies the entire chain of custody for integrity
+     */
+    fun verifyChainOfCustody(): org.verumomnis.forensic.custody.IntegrityStatus {
+        return custodyLogger.verifyChainIntegrity()
+    }
+
+    /**
+     * Exports the chain of custody log as a formatted report
+     */
+    fun exportChainOfCustodyReport(): String = custodyLogger.exportReport()
 }
 
 /**

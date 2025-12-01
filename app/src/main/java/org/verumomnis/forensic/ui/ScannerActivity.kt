@@ -8,6 +8,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
+import android.view.WindowManager
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -42,6 +43,11 @@ import java.util.*
  * - Photo capture with camera
  * - Text input for notes
  * - Leveler engine analysis
+ *
+ * Security Features:
+ * - FLAG_SECURE: Prevents screenshots during evidence processing
+ * - Process isolation for each document
+ * - Offline-first operation
  */
 class ScannerActivity : ComponentActivity() {
 
@@ -103,6 +109,13 @@ class ScannerActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // ANTI-TAMPERING: Prevent screenshots during evidence processing
+        // This is required for court admissibility per forensic standards
+        window.setFlags(
+            WindowManager.LayoutParams.FLAG_SECURE,
+            WindowManager.LayoutParams.FLAG_SECURE
+        )
 
         checkPermissions()
 

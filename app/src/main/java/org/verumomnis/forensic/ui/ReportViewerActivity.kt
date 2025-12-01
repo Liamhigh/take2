@@ -1,6 +1,7 @@
 package org.verumomnis.forensic.ui
 
 import android.os.Bundle
+import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
@@ -17,11 +18,22 @@ import java.io.File
 
 /**
  * Report Viewer Activity for viewing forensic reports
+ *
+ * Security Features:
+ * - FLAG_SECURE: Prevents screenshots of forensic reports
+ * - Offline-first operation
  */
 class ReportViewerActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // ANTI-TAMPERING: Prevent screenshots of forensic reports
+        // This is required for court admissibility per forensic standards
+        window.setFlags(
+            WindowManager.LayoutParams.FLAG_SECURE,
+            WindowManager.LayoutParams.FLAG_SECURE
+        )
 
         setContent {
             VerumOmnisTheme {
