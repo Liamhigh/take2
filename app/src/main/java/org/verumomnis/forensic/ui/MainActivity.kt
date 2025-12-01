@@ -36,7 +36,7 @@ import org.verumomnis.forensic.ui.theme.VerumOmnisTheme
  */
 class MainActivity : ComponentActivity() {
 
-    private var currentCase: ForensicCase? = null
+    private var currentCase by mutableStateOf<ForensicCase?>(null)
 
     private val permissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
