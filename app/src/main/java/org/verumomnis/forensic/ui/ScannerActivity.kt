@@ -82,7 +82,6 @@ class ScannerActivity : ComponentActivity() {
 
     private fun addTextEvidence(description: String, content: String) {
         val app = application as VerumOmnisApplication
-        val mainActivity = (applicationContext as? VerumOmnisApplication)
 
         lifecycleScope.launch {
             try {

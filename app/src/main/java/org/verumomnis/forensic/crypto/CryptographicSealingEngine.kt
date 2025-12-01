@@ -119,9 +119,12 @@ class CryptographicSealingEngine {
         } else {
             append("null|")
         }
-        append(metadata.entries.sortedBy { it.key }
-            .joinToString(",") { "${it.key}=${it.value}" })
-        append("|$salt")
+        // Metadata serialization with explicit pipe delimiter
+        val metadataStr = metadata.entries.sortedBy { it.key }
+            .joinToString(",") { "${it.key}=${it.value}" }
+        append(metadataStr)
+        append("|")
+        append(salt)
     }
 
     /**
