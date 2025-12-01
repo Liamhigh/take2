@@ -47,17 +47,35 @@ This application operates under the Verum Omnis Constitution Mode, which enforce
 - JDK 17
 - Android SDK 34
 
-### Build Debug APK
+### ⚠️ Build Environment Notice
+
+**Local builds require access to Google's Maven repository** (`dl.google.com`, `maven.google.com`) for Android Gradle Plugin and dependencies.
+
+**If you cannot build locally due to network restrictions:**
+- ✅ **CI builds on GitHub Actions work perfectly** and produce APKs for every commit
+- ✅ Download pre-built APKs from the latest successful workflow run in the [Actions tab](https://github.com/Liamhigh/take2/actions/workflows/build-apk.yml)
+- ✅ APKs are available as artifacts: `verum-omnis-debug-apk` and `verum-omnis-release-apk`
+
+### Build Debug APK (when network access available)
 ```bash
 ./gradlew assembleDebug
 ```
 
-### Build Release APK
+### Build Release APK (when network access available)
 ```bash
 ./gradlew assembleRelease
 ```
 
 The APK will be output to `app/build/outputs/apk/`
+
+### Alternative: Download Pre-built APKs
+
+If local builds fail due to network restrictions, you can download APKs built by CI:
+
+1. Go to [Actions → Build Android APK](https://github.com/Liamhigh/take2/actions/workflows/build-apk.yml)
+2. Click on the latest successful workflow run (green checkmark)
+3. Scroll to "Artifacts" section at the bottom
+4. Download `verum-omnis-debug-apk` or `verum-omnis-release-apk`
 
 ## Usage
 
