@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Verum Omnis</string>
+    <string name="constitution_mode_active">Constitution Mode: ACTIVE</string>
+    <string name="forensic_engine_name">Verum Omnis Forensic Engine</string>
+</resources>
