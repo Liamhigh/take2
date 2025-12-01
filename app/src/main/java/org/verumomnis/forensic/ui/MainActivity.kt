@@ -36,7 +36,7 @@ import org.verumomnis.forensic.ui.theme.VerumOmnisTheme
  */
 class MainActivity : ComponentActivity() {
 
-    private var currentCase by mutableStateOf<ForensicCase?>(null)
+    private val currentCaseState = mutableStateOf<ForensicCase?>(null)
 
     private val permissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
@@ -59,6 +59,8 @@ class MainActivity : ComponentActivity() {
         requestPermissions()
 
         setContent {
+            val currentCase by currentCaseState
+            
             VerumOmnisTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
@@ -96,17 +98,17 @@ class MainActivity : ComponentActivity() {
     private fun createNewCase(caseName: String) {
         val app = application as VerumOmnisApplication
         lifecycleScope.launch {
-            currentCase = app.forensicEngine.createNewCase(caseName)
+            currentCaseState.value = app.forensicEngine.createNewCase(caseName)
             Toast.makeText(
                 this@MainActivity,
-                "Case created: ${currentCase?.name}",
+                "Case created: ${currentCaseState.value?.name}",
                 Toast.LENGTH_SHORT
             ).show()
         }
     }
 
     private fun startScanner() {
-        if (currentCase == null) {
+        if (currentCaseState.value == null) {
             Toast.makeText(this, "Please create a case first", Toast.LENGTH_SHORT).show()
             return
         }
@@ -114,7 +116,7 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun generateReport() {
-        val case = currentCase
+        val case = currentCaseState.value
         if (case == null || case.evidenceItems.isEmpty()) {
             Toast.makeText(this, "Please add evidence first", Toast.LENGTH_SHORT).show()
             return
@@ -140,7 +142,7 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun viewReport() {
-        if (currentCase == null) {
+        if (currentCaseState.value == null) {
             Toast.makeText(this, "Please create a case first", Toast.LENGTH_SHORT).show()
             return
         }
