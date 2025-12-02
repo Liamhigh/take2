@@ -68,6 +68,16 @@ This application operates under the Verum Omnis Constitution Mode, which enforce
 
 The APK will be output to `app/build/outputs/apk/`
 
+### APK Signing
+
+All APKs are automatically signed during the build process. For detailed information about APK signing, verification, and production configuration, see [APK_SIGNING.md](APK_SIGNING.md).
+
+**Quick verification:**
+```bash
+./scripts/verify-apk-signature.sh  # Verifies all built APKs
+./scripts/verify-apk-signature.sh app/build/outputs/apk/debug/app-debug.apk  # Verify specific APK
+```
+
 ### Alternative: Download Pre-built APKs
 
 If local builds fail due to network restrictions, you can download APKs built by CI:
