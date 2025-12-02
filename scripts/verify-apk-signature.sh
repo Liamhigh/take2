@@ -99,14 +99,17 @@ verify_with_jarsigner() {
 check_debug_signature() {
     local apk_path=$1
     
-    if unzip -p "$apk_path" META-INF/CERT.RSA 2>/dev/null | keytool -printcert 2>&1 | grep -q "CN=Android Debug"; then
-        print_warning "This APK is signed with the DEBUG keystore"
-        print_info "Debug signatures are suitable for development but NOT for production"
-        return 0
-    else
-        print_success "This APK is signed with a RELEASE keystore"
-        return 1
-    fi
+    # Try multiple certificate file extensions (RSA, DSA, EC)
+    for cert_file in $(unzip -l "$apk_path" 2>/dev/null | grep "META-INF/.*\.(RSA\|DSA\|EC)" | awk '{print $4}'); do
+        if unzip -p "$apk_path" "$cert_file" 2>/dev/null | keytool -printcert 2>&1 | grep -q "CN=Android Debug"; then
+            print_warning "This APK is signed with the DEBUG keystore"
+            print_info "Debug signatures are suitable for development but NOT for production"
+            return 0
+        fi
+    done
+    
+    print_success "This APK is signed with a RELEASE keystore"
+    return 1
 }
 
 # Main verification function
@@ -159,9 +162,9 @@ main() {
         fi
         
         # Find all APKs
-        APKS=$(find "$APK_DIR" -name "*.apk" -type f 2>/dev/null)
+        mapfile -t APKS < <(find "$APK_DIR" -name "*.apk" -type f 2>/dev/null)
         
-        if [ -z "$APKS" ]; then
+        if [ ${#APKS[@]} -eq 0 ]; then
             print_error "No APK files found in $APK_DIR"
             print_info "Build the project first with: ./gradlew assembleDebug assembleRelease"
             exit 1
@@ -171,7 +174,7 @@ main() {
         SUCCESS_COUNT=0
         TOTAL_COUNT=0
         
-        for apk in $APKS; do
+        for apk in "${APKS[@]}"; do
             TOTAL_COUNT=$((TOTAL_COUNT + 1))
             if verify_apk "$apk"; then
                 SUCCESS_COUNT=$((SUCCESS_COUNT + 1))
