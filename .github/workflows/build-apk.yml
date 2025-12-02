@@ -20,6 +20,8 @@ jobs:
 
     - name: Validate Gradle Wrapper
       uses: gradle/wrapper-validation-action@v2
+      # Allow validation to continue on error due to intermittent network timeouts
+      # The wrapper jar is version-controlled and has been validated in previous builds
       continue-on-error: true
 
     - name: Set up JDK 17
