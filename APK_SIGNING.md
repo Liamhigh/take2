@@ -19,21 +19,17 @@ Debug APKs built by this project are **automatically signed** using the Android 
 **Note**: Debug signatures are only suitable for development and testing. They should **NEVER** be used for production releases or distribution outside of development teams.
 
 ### Release APKs
-**Status: ⚠️ SIGNED WITH DEBUG KEY**
+**Status: ✅ CONFIGURABLE SIGNING**
 
-Currently, release APKs are also signed with the Android debug keystore because no explicit `signingConfig` is defined in the `release` build type.
+Release APKs can now be signed with either:
+1. **Production Release Keystore** (recommended for production)
+2. **Debug Keystore** (fallback if release keystore not configured)
 
-**This is appropriate for:**
-- Open-source projects
-- Development builds
-- Internal testing
-- Pre-release distributions
+The build system automatically detects and uses the release keystore if configured via:
+- GitHub Actions: Environment variables from GitHub Secrets
+- Local builds: `keystore.properties` file
 
-**This is NOT appropriate for:**
-- Google Play Store distribution
-- Production releases
-- Public app stores
-- Enterprise distribution requiring verified publisher identity
+**For production use**, see [KEYSTORE_SETUP.md](./KEYSTORE_SETUP.md) for complete setup instructions.
 
 ## How Android APK Signing Works
 
@@ -69,101 +65,61 @@ Android will refuse to install unsigned APKs. If an APK installs successfully, i
 
 ## Production Signing Configuration
 
-If you need to distribute this app to production users or publish it on app stores, you should:
+✅ **Release signing is now fully configured!**
+
+The project supports production keystore signing through:
+
+### GitHub Actions (Automated CI/CD)
+Release APKs are automatically signed when you configure these GitHub Secrets:
+- `RELEASE_KEYSTORE_B64`: Base64-encoded keystore file
+- `RELEASE_KEYSTORE_PASSWORD`: Keystore password  
+- `RELEASE_KEY_ALIAS`: Key alias name
+- `RELEASE_KEY_PASSWORD`: Key password
+
+### Local Builds
+Release APKs can be signed locally using a `keystore.properties` file:
+```properties
+storeFile=release-keystore.jks
+storePassword=YOUR_STORE_PASSWORD
+keyAlias=release-key
+keyPassword=YOUR_KEY_PASSWORD
+```
+
+**See [KEYSTORE_SETUP.md](./KEYSTORE_SETUP.md) for complete setup instructions.**
+
+## Quick Setup
 
 ### 1. Create a Release Keystore
 ```bash
 keytool -genkey -v -keystore release-keystore.jks -keyalg RSA -keysize 2048 -validity 10000 -alias release-key
 ```
 
-### 2. Store Keystore Securely
-- **DO NOT** commit the keystore file to the repository
-- Add `*.jks` and `*.keystore` to `.gitignore`
-- Store keystore in a secure location with backups
-- **CRITICAL**: If you lose the keystore, you cannot update the app on Google Play
-
-### 3. Add Signing Configuration
-
-Create a `keystore.properties` file (DO NOT commit this):
-```properties
-storeFile=/path/to/release-keystore.jks
-storePassword=YOUR_STORE_PASSWORD
-keyAlias=release-key
-keyPassword=YOUR_KEY_PASSWORD
+### 2. For GitHub Actions: Add Secrets
+Encode your keystore:
+```bash
+base64 release-keystore.jks > keystore.b64
 ```
 
-Update `app/build.gradle.kts`:
-```kotlin
-// Load keystore properties
-val keystorePropertiesFile = rootProject.file("keystore.properties")
-val keystoreProperties = Properties()
-if (keystorePropertiesFile.exists()) {
-    keystoreProperties.load(FileInputStream(keystorePropertiesFile))
-}
+Add these secrets in GitHub: Settings → Secrets and variables → Actions
+- `RELEASE_KEYSTORE_B64` (content of keystore.b64)
+- `RELEASE_KEYSTORE_PASSWORD`
+- `RELEASE_KEY_ALIAS` (e.g., "release-key")
+- `RELEASE_KEY_PASSWORD`
 
-android {
-    // ... existing configuration ...
-    
-    signingConfigs {
-        create("release") {
-            if (keystorePropertiesFile.exists()) {
-                storeFile = file(keystoreProperties["storeFile"] as String)
-                storePassword = keystoreProperties["storePassword"] as String
-                keyAlias = keystoreProperties["keyAlias"] as String
-                keyPassword = keystoreProperties["keyPassword"] as String
-            }
-        }
-    }
-    
-    buildTypes {
-        release {
-            signingConfig = signingConfigs.getByName("release")
-            isMinifyEnabled = true
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
-            )
-        }
-    }
-}
-```
+### 3. For Local Builds: Create keystore.properties
+Create `keystore.properties` in project root with your keystore details (see above).
 
-### 4. GitHub Actions / CI Signing
-
-For automated builds in CI/CD:
-
-1. **Encode keystore as base64**:
-   ```bash
-   base64 release-keystore.jks > keystore.b64
-   ```
-
-2. **Add GitHub Secrets**:
-   - `RELEASE_KEYSTORE_B64`: Base64 encoded keystore file
-   - `RELEASE_KEYSTORE_PASSWORD`: Keystore password
-   - `RELEASE_KEY_ALIAS`: Key alias
-   - `RELEASE_KEY_PASSWORD`: Key password
-
-3. **Update GitHub Actions workflow** (`.github/workflows/build-apk.yml`):
-   ```yaml
-   - name: Decode Keystore
-     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-     env:
-       KEYSTORE_B64: ${{ secrets.RELEASE_KEYSTORE_B64 }}
-     run: echo "$KEYSTORE_B64" | base64 -d > release-keystore.jks
-
-   - name: Build Release APK
-     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-     env:
-       KEYSTORE_FILE: release-keystore.jks
-       KEYSTORE_PASSWORD: ${{ secrets.RELEASE_KEYSTORE_PASSWORD }}
-       KEY_ALIAS: ${{ secrets.RELEASE_KEY_ALIAS }}
-       KEY_PASSWORD: ${{ secrets.RELEASE_KEY_PASSWORD }}
-     run: ./gradlew assembleRelease
-   ```
+**That's it!** The build system will automatically use your release keystore.
 
 ## Current GitHub Actions Builds
 
-The current GitHub Actions workflow (`.github/workflows/build-apk.yml`) builds both debug and release APKs. Both are currently signed with the debug keystore.
+The GitHub Actions workflow (`.github/workflows/build-apk.yml`) now:
+- ✅ Decodes release keystore from GitHub Secrets (when available)
+- ✅ Uses release keystore for signing release APKs (when configured)
+- ✅ Falls back to debug keystore if release keystore not available
+- ✅ Cleans up keystore file after build for security
+
+To enable release signing in CI/CD, add the four required secrets to your GitHub repository.
 
 ## Forensic Evidence Integrity
 
@@ -191,10 +147,15 @@ For production forensic work requiring legal admissibility, consider:
 **Answer: YES** ✅
 
 - **Debug APKs**: Signed with Android debug keystore (automatic)
-- **Release APKs**: Currently signed with Android debug keystore (automatic, no explicit signingConfig)
+- **Release APKs**: Signed with production release keystore (if configured) OR debug keystore (fallback)
 - **All APKs are signed**: Android requires all APKs to be signed; unsigned APKs cannot be installed
 
-**For Production Use**: If you need production-ready releases, follow the production signing configuration steps above to sign with a release keystore.
+**For Production Use**: 
+✅ Release keystore configuration is **already implemented**  
+✅ GitHub Actions workflow is **ready to use your secrets**  
+✅ Local builds support is **already configured**  
+
+**Next Step**: Follow [KEYSTORE_SETUP.md](./KEYSTORE_SETUP.md) to add your keystore secrets!
 
 ## References
 

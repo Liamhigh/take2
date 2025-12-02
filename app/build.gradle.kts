@@ -22,8 +22,57 @@ android {
         }
     }
 
+    signingConfigs {
+        create("release") {
+            // Use environment variables for CI/CD signing
+            // In GitHub Actions, these are set from secrets
+            // Locally, use keystore.properties file (see documentation)
+            val keystoreFile = System.getenv("KEYSTORE_FILE")
+            val keystorePassword = System.getenv("KEYSTORE_PASSWORD")
+            val keyAlias = System.getenv("KEY_ALIAS")
+            val keyPassword = System.getenv("KEY_PASSWORD")
+            
+            if (keystoreFile != null && keystorePassword != null && keyAlias != null && keyPassword != null) {
+                storeFile = file(keystoreFile)
+                storePassword = keystorePassword
+                this.keyAlias = keyAlias
+                this.keyPassword = keyPassword
+            } else {
+                // Fallback to keystore.properties for local builds
+                val keystorePropertiesFile = rootProject.file("keystore.properties")
+                if (keystorePropertiesFile.exists()) {
+                    val keystoreProperties = java.util.Properties()
+                    keystorePropertiesFile.inputStream().use { keystoreProperties.load(it) }
+                    
+                    val storeFilePath = keystoreProperties["storeFile"] as? String
+                    val storePass = keystoreProperties["storePassword"] as? String
+                    val alias = keystoreProperties["keyAlias"] as? String
+                    val keyPass = keystoreProperties["keyPassword"] as? String
+                    
+                    if (storeFilePath != null && storePass != null && alias != null && keyPass != null) {
+                        storeFile = if (java.io.File(storeFilePath).isAbsolute) {
+                            file(storeFilePath)
+                        } else {
+                            rootProject.file(storeFilePath)
+                        }
+                        storePassword = storePass
+                        this.keyAlias = alias
+                        this.keyPassword = keyPass
+                    }
+                }
+            }
+        }
+    }
+
     buildTypes {
         release {
+            // Use release signing config if available, otherwise fall back to debug
+            val releaseSigningConfig = signingConfigs.findByName("release")
+            signingConfig = if (releaseSigningConfig?.storeFile != null && releaseSigningConfig.storeFile?.exists() == true) {
+                signingConfigs.getByName("release")
+            } else {
+                signingConfigs.getByName("debug")
+            }
             isMinifyEnabled = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),

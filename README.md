@@ -81,7 +81,16 @@ The APK will be output to `app/build/outputs/apk/`
 
 ### APK Signing
 
-All APKs are automatically signed during the build process. For detailed information about APK signing, verification, and production configuration, see [APK_SIGNING.md](APK_SIGNING.md).
+All APKs are automatically signed during the build process. 
+
+**For production releases**, you can configure a release keystore:
+- See **[KEYSTORE_SETUP.md](KEYSTORE_SETUP.md)** for complete setup instructions
+- Configure GitHub Secrets for automated CI/CD signing
+- Or use `keystore.properties` for local builds
+
+**For development/testing**, APKs are automatically signed with the debug keystore.
+
+For detailed information about APK signing and verification, see [APK_SIGNING.md](APK_SIGNING.md).
 
 **Quick verification:**
 ```bash
