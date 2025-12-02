@@ -9,6 +9,13 @@ build/
 output.json
 proguard/
 
+# Keystore files - NEVER COMMIT THESE
+*.jks
+*.keystore
+keystore.properties
+release-keystore.*
+*.b64
+
 # Kotlin
 *.class
 *.log

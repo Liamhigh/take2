@@ -43,6 +43,14 @@ jobs:
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
 
+    - name: Decode Release Keystore
+      if: github.event_name == 'push' && github.ref == 'refs/heads/main' && secrets.RELEASE_KEYSTORE_B64 != ''
+      env:
+        KEYSTORE_B64: ${{ secrets.RELEASE_KEYSTORE_B64 }}
+      run: |
+        echo "$KEYSTORE_B64" | base64 -d > release-keystore.jks
+        echo "Release keystore decoded successfully"
+
     - name: Run Lint
       run: ./gradlew lintDebug --stacktrace
       continue-on-error: true
@@ -76,7 +84,18 @@ jobs:
         retention-days: 30
 
     - name: Build Release APK
-      run: ./gradlew assembleRelease --stacktrace --info
+      env:
+        KEYSTORE_FILE: release-keystore.jks
+        KEYSTORE_PASSWORD: ${{ secrets.RELEASE_KEYSTORE_PASSWORD }}
+        KEY_ALIAS: ${{ secrets.RELEASE_KEY_ALIAS }}
+        KEY_PASSWORD: ${{ secrets.RELEASE_KEY_PASSWORD }}
+      run: |
+        if [ -f "release-keystore.jks" ]; then
+          echo "Building release APK with release keystore"
+        else
+          echo "Building release APK with debug keystore (no release keystore configured)"
+        fi
+        ./gradlew assembleRelease --stacktrace --info
 
     - name: Upload Release APK
       uses: actions/upload-artifact@v4
@@ -84,3 +103,7 @@ jobs:
         name: verum-omnis-release-apk
         path: app/build/outputs/apk/release/*.apk
         retention-days: 30
+    
+    - name: Clean up keystore
+      if: always()
+      run: rm -f release-keystore.jks
