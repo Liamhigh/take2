@@ -27,7 +27,10 @@ jobs:
       - name: Export signing env
         run: |
           echo "RELEASE_KEYSTORE=$PWD/release-keystore.jks" >> $GITHUB_ENV
-        # These are used in your build.gradle as shown above
+
+      # Grant execute permission for gradlew
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
 
       # Build debug APK (will use debug key, to be signed automatically by Android Studio/Gradle)
       - name: Build debug APK
