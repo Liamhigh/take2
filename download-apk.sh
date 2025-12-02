@@ -65,7 +65,7 @@ check_requirements() {
 # Get the repository name
 get_repo() {
     if git rev-parse --git-dir > /dev/null 2>&1; then
-        git config --get remote.origin.url | sed 's/.*github.com[:/]\(.*\)\.git/\1/' | sed 's/.*github.com[:/]\(.*\)/\1/'
+        git config --get remote.origin.url | sed 's/.*github\.com[:/]\(.*\)\(\.git\)\?$/\1/'
     else
         echo "Liamhigh/take2"
     fi
@@ -125,6 +125,9 @@ main() {
     # Create download directory
     DOWNLOAD_DIR="downloaded-apks"
     mkdir -p "$DOWNLOAD_DIR"
+    # Artifact names (must match workflow configuration)
+    DEBUG_ARTIFACT="verum-omnis-debug-apk"
+    RELEASE_ARTIFACT="verum-omnis-release-apk"
     
     print_info "Downloading APKs to ./$DOWNLOAD_DIR/"
     echo ""
@@ -133,17 +136,23 @@ main() {
     print_info "Downloading debug APK..."
     if gh run download "$RUN_ID" \
         --repo "$REPO" \
-        --name verum-omnis-debug-apk \
+        --name "$DEBUG_ARTIFACT" \
         --dir "$DOWNLOAD_DIR/debug"; then
         print_success "Debug APK downloaded successfully"
-        DEBUG_APK=$(find "$DOWNLOAD_DIR/debug" -name "*.apk" -type f | head -1)
-        if [ -n "$DEBUG_APK" ]; then
-            DEBUG_SIZE=$(du -h "$DEBUG_APK" | cut -f1)
-            print_info "  Location: $DEBUG_APK"
+        # Find APK files more robustly
+        mapfile -t DEBUG_APKS < <(find "$DOWNLOAD_DIR/debug" -name "*.apk" -type f)
+        if [ "${#DEBUG_APKS[@]}" -gt 0 ]; then
+            DEBUG_SIZE=$(du -h "${DEBUG_APKS[0]}" | cut -f1)
+            print_info "  Location: ${DEBUG_APKS[0]}"
             print_info "  Size: $DEBUG_SIZE"
+            if [ "${#DEBUG_APKS[@]}" -gt 1 ]; then
+                print_warning "  Found ${#DEBUG_APKS[@]} APK files (showing first)"
+            fi
+        else
+            print_warning "  No APK files found in downloaded artifact"
         fi
     else
-        print_error "Failed to download debug APK"
+        print_error "Failed to download debug APK (artifact name: $DEBUG_ARTIFACT)"
     fi
     
     echo ""
@@ -152,17 +161,23 @@ main() {
     print_info "Downloading release APK..."
     if gh run download "$RUN_ID" \
         --repo "$REPO" \
-        --name verum-omnis-release-apk \
+        --name "$RELEASE_ARTIFACT" \
         --dir "$DOWNLOAD_DIR/release"; then
         print_success "Release APK downloaded successfully"
-        RELEASE_APK=$(find "$DOWNLOAD_DIR/release" -name "*.apk" -type f | head -1)
-        if [ -n "$RELEASE_APK" ]; then
-            RELEASE_SIZE=$(du -h "$RELEASE_APK" | cut -f1)
-            print_info "  Location: $RELEASE_APK"
+        # Find APK files more robustly
+        mapfile -t RELEASE_APKS < <(find "$DOWNLOAD_DIR/release" -name "*.apk" -type f)
+        if [ "${#RELEASE_APKS[@]}" -gt 0 ]; then
+            RELEASE_SIZE=$(du -h "${RELEASE_APKS[0]}" | cut -f1)
+            print_info "  Location: ${RELEASE_APKS[0]}"
             print_info "  Size: $RELEASE_SIZE"
+            if [ "${#RELEASE_APKS[@]}" -gt 1 ]; then
+                print_warning "  Found ${#RELEASE_APKS[@]} APK files (showing first)"
+            fi
+        else
+            print_warning "  No APK files found in downloaded artifact"
         fi
     else
-        print_error "Failed to download release APK"
+        print_error "Failed to download release APK (artifact name: $RELEASE_ARTIFACT)"
     fi
     
     echo ""
