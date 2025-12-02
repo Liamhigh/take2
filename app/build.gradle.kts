@@ -44,15 +44,21 @@ android {
                     val keystoreProperties = java.util.Properties()
                     keystorePropertiesFile.inputStream().use { keystoreProperties.load(it) }
                     
-                    val storeFilePath = keystoreProperties["storeFile"] as String
-                    storeFile = if (java.io.File(storeFilePath).isAbsolute) {
-                        file(storeFilePath)
-                    } else {
-                        rootProject.file(storeFilePath)
+                    val storeFilePath = keystoreProperties["storeFile"] as? String
+                    val storePass = keystoreProperties["storePassword"] as? String
+                    val alias = keystoreProperties["keyAlias"] as? String
+                    val keyPass = keystoreProperties["keyPassword"] as? String
+                    
+                    if (storeFilePath != null && storePass != null && alias != null && keyPass != null) {
+                        storeFile = if (java.io.File(storeFilePath).isAbsolute) {
+                            file(storeFilePath)
+                        } else {
+                            rootProject.file(storeFilePath)
+                        }
+                        storePassword = storePass
+                        this.keyAlias = alias
+                        this.keyPassword = keyPass
                     }
-                    storePassword = keystoreProperties["storePassword"] as String
-                    this.keyAlias = keystoreProperties["keyAlias"] as String
-                    this.keyPassword = keystoreProperties["keyPassword"] as String
                 }
             }
         }
@@ -61,7 +67,8 @@ android {
     buildTypes {
         release {
             // Use release signing config if available, otherwise fall back to debug
-            signingConfig = if (signingConfigs.findByName("release")?.storeFile?.exists() == true) {
+            val releaseSigningConfig = signingConfigs.findByName("release")
+            signingConfig = if (releaseSigningConfig?.storeFile != null && releaseSigningConfig.storeFile?.exists() == true) {
                 signingConfigs.getByName("release")
             } else {
                 signingConfigs.getByName("debug")

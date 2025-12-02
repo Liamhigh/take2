@@ -37,11 +37,6 @@ The project now supports **proper release APK signing** using a production keyst
    ```bash
    base64 release-keystore.jks > keystore.b64
    ```
-   
-   Or on macOS:
-   ```bash
-   base64 -i release-keystore.jks -o keystore.b64
-   ```
 
 3. **Add GitHub Secrets**:
    

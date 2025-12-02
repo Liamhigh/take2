@@ -43,6 +43,8 @@ jobs:
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
 
+    # Decode release keystore only for main branch builds
+    # PR builds and other branches will use debug keystore (fallback in build.gradle.kts)
     - name: Decode Release Keystore
       if: github.event_name == 'push' && github.ref == 'refs/heads/main'
       env:
