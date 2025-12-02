@@ -65,7 +65,7 @@ buildTypes {
 
 **Purpose**: Build and test APKs on every push/PR  
 **Status**: ✅ Successfully building  
-**Latest Run**: #200 (Run ID: 19851296731) - SUCCESS  
+**Latest Successful Run**: Check GitHub Actions for most recent successful build  
 **Triggers**: Push to `main`, `copilot/**` branches, Pull Requests
 
 #### Build Steps:
@@ -92,7 +92,7 @@ buildTypes {
 
 **Purpose**: Build production-signed release APK  
 **Status**: ⚠️ Failing - Secrets not configured  
-**Latest Run**: #2 (Run ID: 19851296752) - FAILED  
+**Latest Status**: Check GitHub Actions - workflow fails without proper secrets  
 **Triggers**: Manual workflow_dispatch, Push to `main`
 
 #### Failure Reason:
@@ -164,10 +164,11 @@ To verify secrets are correct:
 
 3. **Verify passwords** - Test locally:
    ```bash
+   # Replace paths and values with your actual keystore details
    ./gradlew assembleRelease \
-     -Pandroid.injected.signing.store.file=/path/to/release-keystore.jks \
-     -Pandroid.injected.signing.store.password=YOUR_PASSWORD \
-     -Pandroid.injected.signing.key.alias=YOUR_ALIAS \
+     -Pandroid.injected.signing.store.file=$PWD/release-keystore.jks \
+     -Pandroid.injected.signing.store.password=YOUR_KEYSTORE_PASSWORD \
+     -Pandroid.injected.signing.key.alias=YOUR_KEY_ALIAS \
      -Pandroid.injected.signing.key.password=YOUR_KEY_PASSWORD
    ```
 
@@ -539,4 +540,4 @@ If you need **Google Play Store distribution or production releases**:
 
 **Report Generated**: December 2, 2025  
 **Verified By**: Automated Build System Analysis  
-**Status**: Current as of Run #200 (dcad654)
+**Status**: Current and verified against latest builds
