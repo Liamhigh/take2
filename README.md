@@ -4,6 +4,17 @@
 
 An Android application for collecting, sealing, and reporting forensic evidence in accordance with the Verum Omnis Constitutional Governance Layer.
 
+## 🚀 Ready to Test?
+
+**All APKs are signed and ready for installation!** 
+
+👉 **[See TESTING.md for download and installation instructions](TESTING.md)**
+
+Quick download:
+```bash
+./download-apk.sh
+```
+
 ## Features
 
 - **Cryptographic Evidence Sealing**: SHA-512 hashing with HMAC-SHA512 sealing for tamper detection
@@ -125,6 +136,31 @@ app/src/main/java/org/verumomnis/forensic/
     └── theme/
         └── Theme.kt
 ```
+
+## FAQ
+
+### Are the APKs signed?
+
+**Yes!** All APKs are automatically signed during the build process. Both debug and release APKs are properly signed and can be installed on any Android device.
+
+- ✅ Debug APKs: Signed with Android debug keystore
+- ✅ Release APKs: Signed with debug keystore (suitable for testing)
+- ✅ All APKs are installable and ready for testing
+
+For details, see [APK_SIGNING.md](APK_SIGNING.md).
+
+### How do I download and install the APKs?
+
+See the comprehensive [TESTING.md](TESTING.md) guide for step-by-step instructions.
+
+Quick download:
+```bash
+./download-apk.sh
+```
+
+### Why can't I install the APK on my device?
+
+You need to enable "Install from unknown sources" in your Android device settings. See [TESTING.md](TESTING.md) for detailed installation instructions.
 
 ## License
 
