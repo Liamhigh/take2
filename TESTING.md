@@ -315,6 +315,8 @@ If you have questions about testing or installing the app, please:
 
 ### Repository Analysis: Which Produces the Best Android Contradiction Engine?
 
+**Note:** This analysis is based on GitHub code search results as of December 2025. External repository information should be verified independently before making deployment decisions.
+
 After comprehensive analysis of all Liamhigh repositories, **THREE repositories** contain Android-native contradiction engines suitable for SAPS (South African Police Service) case files:
 
 #### 🥇 **#1 RECOMMENDED FOR DEPLOYMENT: `take2`** (Current Repository - Production Ready)
@@ -409,13 +411,15 @@ After comprehensive analysis of all Liamhigh repositories, **THREE repositories*
    - Offline-first operation
    - Multi-jurisdiction compliance (UAE, SA, EU, US)
 
-6. ✅ **SAPS-Specific Compliance:**
-   - Meets Daubert standard for legal admissibility
+6. ✅ **SAPS-Specific Compliance Features:**
+   - Designed to meet Daubert standard requirements for legal admissibility*
    - Tamper-evident evidence sealing
    - Append-only chain of custody
    - Airgap-ready for sensitive cases
    - No cloud logging or telemetry
    - FLAG_SECURE prevents screenshots of evidence
+
+*Note: Legal admissibility determination is ultimately made by courts. This app provides technical features designed to support forensic evidence standards.
 
 **Future Development Note:**
 - `Liam-Highcock` is the newest codebase and will receive future enhancements first
