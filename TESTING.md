@@ -432,8 +432,8 @@ After comprehensive analysis of all Liamhigh repositories, **THREE repositories*
 adb install downloaded-apks/release/app-release.apk
 ```
 
-Or download directly from GitHub Actions: https://github.com/Liamhigh/take2/actions
-(Navigate to the "Build Android APK" workflow and download the latest artifacts)
+**Alternative:** Download directly from GitHub Actions at https://github.com/Liamhigh/take2/actions  
+Navigate to the "Build Android APK" workflow and download the latest artifacts.
 
 ### Contradiction Engine Capabilities
 
