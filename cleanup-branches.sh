@@ -138,7 +138,7 @@ for branch in "${DELETE_BRANCHES[@]}"; do
     # Check if branch exists on remote
     if git ls-remote --exit-code --heads origin "$branch" > /dev/null 2>&1; then
         # Try to delete the branch
-        if git push origin --delete "$branch" 2>&1; then
+        if git push origin --delete "$branch" > /dev/null 2>&1; then
             echo "✅ DELETED"
             ((deleted_count++))
         else
