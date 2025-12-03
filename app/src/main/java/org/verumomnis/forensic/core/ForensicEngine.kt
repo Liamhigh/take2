@@ -109,7 +109,7 @@ class ForensicEngine(private val context: Context) {
             null
         }
 
-        // Auto-detect jurisdiction from GPS location
+        // Auto-detect jurisdiction from GPS location only if not already set
         if (case.jurisdiction == null && location != null) {
             case.jurisdiction = detectJurisdiction(location)
         }
@@ -353,10 +353,12 @@ class ForensicEngine(private val context: Context) {
         case: ForensicCase,
         tripleHashSeal: ForensicTripleHashSeal? = null
     ): File = withContext(Dispatchers.IO) {
-        // Ensure jurisdiction is set (use first evidence location if not set)
+        // Ensure jurisdiction is set (use first evidence location if not explicitly set)
         if (case.jurisdiction == null && case.evidenceItems.isNotEmpty()) {
             val firstLocationEvidence = case.evidenceItems.firstOrNull { it.location != null }
-            case.jurisdiction = detectJurisdiction(firstLocationEvidence?.location)
+            if (firstLocationEvidence != null) {
+                case.jurisdiction = detectJurisdiction(firstLocationEvidence.location)
+            }
         }
 
         // Generate jurisdiction-aware narrative

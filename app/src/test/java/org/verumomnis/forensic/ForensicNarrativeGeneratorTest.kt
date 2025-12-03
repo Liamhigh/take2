@@ -7,6 +7,7 @@ import org.verumomnis.forensic.core.EvidenceType
 import org.verumomnis.forensic.core.ForensicCase
 import org.verumomnis.forensic.core.ForensicEvidence
 import org.verumomnis.forensic.crypto.CryptographicSeal
+import org.verumomnis.forensic.jurisdiction.Jurisdiction
 import org.verumomnis.forensic.report.ForensicNarrativeGenerator
 import java.io.File
 import java.time.Duration
@@ -111,19 +112,19 @@ class ForensicNarrativeGeneratorTest {
         val case = createTestCase()
 
         // Test with UAE jurisdiction
-        val narrativeUAE = narrativeGenerator.generateNarrative(case, org.verumomnis.forensic.jurisdiction.Jurisdiction.UAE)
+        val narrativeUAE = narrativeGenerator.generateNarrative(case, Jurisdiction.UAE)
         assertTrue(narrativeUAE.contains("United Arab Emirates"))
 
         // Test with South Africa jurisdiction
-        val narrativeSA = narrativeGenerator.generateNarrative(case, org.verumomnis.forensic.jurisdiction.Jurisdiction.SOUTH_AFRICA)
+        val narrativeSA = narrativeGenerator.generateNarrative(case, Jurisdiction.SOUTH_AFRICA)
         assertTrue(narrativeSA.contains("South Africa"))
 
         // Test with EU jurisdiction
-        val narrativeEU = narrativeGenerator.generateNarrative(case, org.verumomnis.forensic.jurisdiction.Jurisdiction.EUROPEAN_UNION)
+        val narrativeEU = narrativeGenerator.generateNarrative(case, Jurisdiction.EUROPEAN_UNION)
         assertTrue(narrativeEU.contains("European Union"))
 
         // Test with US jurisdiction (default)
-        val narrativeUS = narrativeGenerator.generateNarrative(case, org.verumomnis.forensic.jurisdiction.Jurisdiction.UNITED_STATES)
+        val narrativeUS = narrativeGenerator.generateNarrative(case, Jurisdiction.UNITED_STATES)
         assertTrue(narrativeUS.contains("United States"))
     }
 
