@@ -3,6 +3,8 @@ package org.verumomnis.forensic.report
 import org.verumomnis.forensic.core.EvidenceType
 import org.verumomnis.forensic.core.ForensicCase
 import org.verumomnis.forensic.core.ForensicEvidence
+import org.verumomnis.forensic.jurisdiction.Jurisdiction
+import org.verumomnis.forensic.jurisdiction.JurisdictionComplianceEngine
 import java.time.Duration
 import java.time.Instant
 import java.time.ZoneId
@@ -25,29 +27,35 @@ import java.time.format.DateTimeFormatter
  */
 class ForensicNarrativeGenerator {
 
+    private val jurisdictionEngine = JurisdictionComplianceEngine()
+
     private val dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
         .withZone(ZoneId.systemDefault())
 
     /**
-     * Generates a comprehensive forensic narrative for a case
+     * Generates a comprehensive forensic narrative for a case with jurisdiction awareness
      */
-    fun generateNarrative(case: ForensicCase): String = buildString {
+    fun generateNarrative(case: ForensicCase, jurisdiction: Jurisdiction? = null): String = buildString {
+        val activeJurisdiction = jurisdiction ?: Jurisdiction.UNITED_STATES
+        
         appendLine("FORENSIC ANALYSIS NARRATIVE")
+        appendLine()
+        appendLine("Jurisdiction: ${jurisdictionEngine.getComplianceConfig(activeJurisdiction).name}")
         appendLine()
 
         // Executive Summary
         appendSection("EXECUTIVE SUMMARY") {
-            appendLine(generateExecutiveSummary(case))
+            appendLine(generateExecutiveSummary(case, activeJurisdiction))
         }
 
         // Timeline Analysis
         appendSection("TIMELINE ANALYSIS") {
-            appendLine(generateTimelineAnalysis(case))
+            appendLine(generateTimelineAnalysis(case, activeJurisdiction))
         }
 
         // Evidence Facts
         appendSection("EVIDENCE FACTS") {
-            appendLine(generateEvidenceFacts(case))
+            appendLine(generateEvidenceFacts(case, activeJurisdiction))
         }
 
         // Contradiction Detection
@@ -60,6 +68,11 @@ class ForensicNarrativeGenerator {
             appendLine(generateIntegrityAssessment(case))
         }
 
+        // Jurisdiction Compliance
+        appendSection("JURISDICTION COMPLIANCE") {
+            appendLine(generateJurisdictionCompliance(activeJurisdiction))
+        }
+
         // Recommendations
         appendSection("RECOMMENDATIONS") {
             appendLine(generateRecommendations(case))
@@ -67,12 +80,15 @@ class ForensicNarrativeGenerator {
     }
 
     /**
-     * Generates executive summary
+     * Generates executive summary with jurisdiction-aware timestamps
      */
-    private fun generateExecutiveSummary(case: ForensicCase): String = buildString {
+    private fun generateExecutiveSummary(case: ForensicCase, jurisdiction: Jurisdiction): String = buildString {
+        val config = jurisdictionEngine.getComplianceConfig(jurisdiction)
+        
         appendLine("Case: ${case.name}")
         appendLine("Case ID: ${case.id}")
-        appendLine("Created: ${dateFormatter.format(case.createdAt)}")
+        appendLine("Created: ${config.timestampFormatter.format(case.createdAt)}")
+        appendLine("Jurisdiction: ${config.name} (${config.code})")
         appendLine()
         appendLine("This forensic report contains ${case.evidenceItems.size} items of evidence")
         appendLine("collected and cryptographically sealed using SHA-512 with HMAC.")
@@ -85,35 +101,36 @@ class ForensicNarrativeGenerator {
             appendLine("  - ${type.name}: ${items.size} item(s)")
         }
 
-        // Time span
+        // Time span with jurisdiction-specific formatting
         if (case.evidenceItems.isNotEmpty()) {
             val earliest = case.evidenceItems.minOf { it.timestamp }
             val latest = case.evidenceItems.maxOf { it.timestamp }
             val duration = Duration.between(earliest, latest)
             appendLine()
             appendLine("Evidence collection period:")
-            appendLine("  From: ${dateFormatter.format(earliest)}")
-            appendLine("  To: ${dateFormatter.format(latest)}")
+            appendLine("  From: ${config.timestampFormatter.format(earliest)}")
+            appendLine("  To: ${config.timestampFormatter.format(latest)}")
             appendLine("  Duration: ${formatDuration(duration)}")
         }
     }
 
     /**
-     * Generates timeline analysis
+     * Generates timeline analysis with jurisdiction-specific timestamps
      */
-    private fun generateTimelineAnalysis(case: ForensicCase): String = buildString {
+    private fun generateTimelineAnalysis(case: ForensicCase, jurisdiction: Jurisdiction): String = buildString {
         if (case.evidenceItems.isEmpty()) {
             appendLine("No evidence items to analyze.")
             return@buildString
         }
 
+        val config = jurisdictionEngine.getComplianceConfig(jurisdiction)
         val sortedEvidence = case.evidenceItems.sortedBy { it.timestamp }
 
         appendLine("Chronological sequence of evidence:")
         appendLine()
 
         sortedEvidence.forEachIndexed { index, evidence ->
-            val timeStr = dateFormatter.format(evidence.timestamp)
+            val timeStr = config.timestampFormatter.format(evidence.timestamp)
             appendLine("${index + 1}. [$timeStr]")
             appendLine("   Type: ${evidence.type.name}")
             appendLine("   Description: ${evidence.description}")
@@ -144,14 +161,16 @@ class ForensicNarrativeGenerator {
     }
 
     /**
-     * Generates evidence facts
+     * Generates evidence facts with jurisdiction-aware timestamps
      */
-    private fun generateEvidenceFacts(case: ForensicCase): String = buildString {
+    private fun generateEvidenceFacts(case: ForensicCase, jurisdiction: Jurisdiction): String = buildString {
+        val config = jurisdictionEngine.getComplianceConfig(jurisdiction)
+        
         case.evidenceItems.forEach { evidence ->
             appendLine("Evidence ID: ${evidence.id}")
             appendLine("  Type: ${evidence.type.name}")
             appendLine("  Description: ${evidence.description}")
-            appendLine("  Timestamp: ${dateFormatter.format(evidence.timestamp)}")
+            appendLine("  Timestamp: ${config.timestampFormatter.format(evidence.timestamp)}")
             appendLine("  Content Hash: ${evidence.contentHash}")
             appendLine("  Seal Signature: ${evidence.seal.signature.take(32)}...")
 
@@ -257,6 +276,30 @@ class ForensicNarrativeGenerator {
         appendLine()
         appendLine("IMPORTANT: This report should be reviewed by qualified legal")
         appendLine("and forensic professionals before use in legal proceedings.")
+    }
+
+    /**
+     * Generates jurisdiction compliance information
+     */
+    private fun generateJurisdictionCompliance(jurisdiction: Jurisdiction): String = buildString {
+        val config = jurisdictionEngine.getComplianceConfig(jurisdiction)
+        
+        appendLine("This report complies with the following legal standards:")
+        appendLine()
+        
+        config.evidenceStandards.forEach { standard ->
+            appendLine("  • $standard")
+        }
+        
+        appendLine()
+        appendLine("Data Protection:")
+        appendLine("  ${config.dataProtectionAct}")
+        appendLine()
+        
+        appendLine("Legal Disclaimer:")
+        config.legalDisclaimer.lines().forEach { line ->
+            appendLine("  $line")
+        }
     }
 
     /**

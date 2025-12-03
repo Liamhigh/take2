@@ -10,6 +10,8 @@ import org.verumomnis.forensic.core.VerumOmnisApplication
 import org.verumomnis.forensic.crypto.CryptographicSealingEngine
 import org.verumomnis.forensic.crypto.ForensicTripleHashSeal
 import org.verumomnis.forensic.custody.ChainOfCustodyLogger
+import org.verumomnis.forensic.jurisdiction.Jurisdiction
+import org.verumomnis.forensic.jurisdiction.JurisdictionComplianceEngine
 import java.io.File
 import java.io.FileOutputStream
 import java.time.Instant
@@ -48,6 +50,7 @@ class ForensicPdfGenerator(private val context: Context) {
         .withZone(ZoneId.systemDefault())
 
     private val sealingEngine = CryptographicSealingEngine()
+    private val jurisdictionEngine = JurisdictionComplianceEngine()
 
     /**
      * Generates a court-ready forensic PDF report for a case
@@ -77,18 +80,19 @@ class ForensicPdfGenerator(private val context: Context) {
     }
 
     /**
-     * Generates a forensic report with full court-ready formatting
+     * Generates a forensic report with full court-ready formatting and jurisdiction compliance
      */
     fun generateForensicReport(
         case: ForensicCase,
         narrative: String,
         tripleHashSeal: ForensicTripleHashSeal?,
-        custodyLogger: ChainOfCustodyLogger?
+        custodyLogger: ChainOfCustodyLogger?,
+        jurisdiction: Jurisdiction = Jurisdiction.UNITED_STATES
     ): File {
         val reportFile = File(case.directory, "forensic_report_${System.currentTimeMillis()}.pdf")
 
         FileOutputStream(reportFile).use { fos ->
-            val pdfContent = buildFullForensicReport(case, narrative, tripleHashSeal, custodyLogger)
+            val pdfContent = buildFullForensicReport(case, narrative, tripleHashSeal, custodyLogger, jurisdiction)
             fos.write(pdfContent.toByteArray())
         }
 
@@ -96,21 +100,23 @@ class ForensicPdfGenerator(private val context: Context) {
     }
 
     /**
-     * Builds the full court-ready forensic report with all required sections
+     * Builds the full court-ready forensic report with all required sections and jurisdiction compliance
      */
     private fun buildFullForensicReport(
         case: ForensicCase,
         narrative: String,
         tripleHashSeal: ForensicTripleHashSeal?,
-        custodyLogger: ChainOfCustodyLogger?
+        custodyLogger: ChainOfCustodyLogger?,
+        jurisdiction: Jurisdiction
     ): String = buildString {
         val reportId = UUID.randomUUID().toString().take(8).uppercase()
         val reportTimestamp = Instant.now()
+        val config = jurisdictionEngine.getComplianceConfig(jurisdiction)
 
         // =====================================================================
         // 1. COVER PAGE
         // =====================================================================
-        appendLine(buildCoverPage(case, reportId, reportTimestamp))
+        appendLine(buildCoverPage(case, reportId, reportTimestamp, jurisdiction))
         appendLine()
         appendLine(FORENSIC_WATERMARK)
         appendLine()
@@ -122,7 +128,7 @@ class ForensicPdfGenerator(private val context: Context) {
         // =====================================================================
         // 2. EXECUTIVE SUMMARY
         // =====================================================================
-        appendLine(buildExecutiveSummary(case, reportId))
+        appendLine(buildExecutiveSummary(case, reportId, jurisdiction))
         appendLine()
         appendLine(FORENSIC_WATERMARK)
         appendLine()
@@ -132,7 +138,19 @@ class ForensicPdfGenerator(private val context: Context) {
         appendLine()
 
         // =====================================================================
-        // 3. METHODOLOGY
+        // 3. JURISDICTION COMPLIANCE
+        // =====================================================================
+        appendLine(buildJurisdictionSection(jurisdiction))
+        appendLine()
+        appendLine(FORENSIC_WATERMARK)
+        appendLine()
+        appendLine("─".repeat(80))
+        appendLine("[PAGE BREAK]")
+        appendLine("─".repeat(80))
+        appendLine()
+
+        // =====================================================================
+        // 4. METHODOLOGY
         // =====================================================================
         appendLine(buildMethodologySection())
         appendLine()
@@ -144,7 +162,7 @@ class ForensicPdfGenerator(private val context: Context) {
         appendLine()
 
         // =====================================================================
-        // 4. FINDINGS
+        // 5. FINDINGS
         // =====================================================================
         appendLine(buildFindingsSection(case, narrative))
         appendLine()
@@ -156,9 +174,9 @@ class ForensicPdfGenerator(private val context: Context) {
         appendLine()
 
         // =====================================================================
-        // 5. RAW EVIDENCE APPENDIX
+        // 6. RAW EVIDENCE APPENDIX
         // =====================================================================
-        appendLine(buildRawEvidenceAppendix(case))
+        appendLine(buildRawEvidenceAppendix(case, jurisdiction))
         appendLine()
         appendLine(FORENSIC_WATERMARK)
         appendLine()
@@ -168,7 +186,7 @@ class ForensicPdfGenerator(private val context: Context) {
         appendLine()
 
         // =====================================================================
-        // 6. CHAIN OF CUSTODY
+        // 7. CHAIN OF CUSTODY
         // =====================================================================
         if (custodyLogger != null) {
             appendLine(buildChainOfCustodySection(custodyLogger))
@@ -182,7 +200,7 @@ class ForensicPdfGenerator(private val context: Context) {
         }
 
         // =====================================================================
-        // 7. VERIFICATION PAGE
+        // 8. VERIFICATION PAGE
         // =====================================================================
         appendLine(buildVerificationPage(case, tripleHashSeal))
         appendLine()
@@ -190,18 +208,32 @@ class ForensicPdfGenerator(private val context: Context) {
         appendLine()
 
         // =====================================================================
-        // FORENSIC FOOTER
+        // FORENSIC FOOTER WITH JURISDICTION
         // =====================================================================
+        appendLine()
         if (tripleHashSeal != null) {
-            appendLine()
-            appendLine(sealingEngine.generateForensicFooter(tripleHashSeal))
+            appendLine(config.generateFooter(
+                caseName = case.name,
+                hash = tripleHashSeal.contentHash,
+                timestamp = reportTimestamp,
+                deviceInfo = "${android.os.Build.MANUFACTURER} ${android.os.Build.MODEL}"
+            ))
+        } else {
+            appendLine(config.generateFooter(
+                caseName = case.name,
+                hash = "N/A",
+                timestamp = reportTimestamp,
+                deviceInfo = "${android.os.Build.MANUFACTURER} ${android.os.Build.MODEL}"
+            ))
         }
     }
 
     /**
-     * Builds the cover page
+     * Builds the cover page with jurisdiction awareness
      */
-    private fun buildCoverPage(case: ForensicCase, reportId: String, timestamp: Instant): String = buildString {
+    private fun buildCoverPage(case: ForensicCase, reportId: String, timestamp: Instant, jurisdiction: Jurisdiction): String = buildString {
+        val config = jurisdictionEngine.getComplianceConfig(jurisdiction)
+        
         appendLine("═".repeat(80))
         appendLine()
         appendLine("                         VERUM OMNIS")
@@ -210,6 +242,7 @@ class ForensicPdfGenerator(private val context: Context) {
         appendLine("═".repeat(80))
         appendLine()
         appendLine("                        COURT EXHIBIT")
+        appendLine("                   ${config.name} Jurisdiction")
         appendLine()
         appendLine("═".repeat(80))
         appendLine()
@@ -223,7 +256,10 @@ class ForensicPdfGenerator(private val context: Context) {
         appendLine("  $reportId")
         appendLine()
         appendLine("REPORT DATE:")
-        appendLine("  ${dateFormatter.format(timestamp)}")
+        appendLine("  ${config.timestampFormatter.format(timestamp)}")
+        appendLine()
+        appendLine("JURISDICTION:")
+        appendLine("  ${config.name} (${config.code})")
         appendLine()
         appendLine("EVIDENCE COUNT:")
         appendLine("  ${case.evidenceItems.size} item(s)")
@@ -235,6 +271,9 @@ class ForensicPdfGenerator(private val context: Context) {
         appendLine("  • $PDF_A_STANDARD: Archival PDF Format")
         appendLine("  • RFC 3161: Timestamp Protocol (Offline)")
         appendLine("  • Daubert Standard: Methodology Documentation")
+        config.evidenceStandards.take(2).forEach { standard ->
+            appendLine("  • ${standard.take(60)}")
+        }
         appendLine()
         appendLine("═".repeat(80))
         appendLine()
@@ -251,15 +290,18 @@ class ForensicPdfGenerator(private val context: Context) {
     }
 
     /**
-     * Builds the executive summary section
+     * Builds the executive summary section with jurisdiction awareness
      */
-    private fun buildExecutiveSummary(case: ForensicCase, reportId: String): String = buildString {
+    private fun buildExecutiveSummary(case: ForensicCase, reportId: String, jurisdiction: Jurisdiction): String = buildString {
+        val config = jurisdictionEngine.getComplianceConfig(jurisdiction)
+        
         appendLine("═".repeat(80))
         appendLine("EXECUTIVE SUMMARY")
         appendLine("═".repeat(80))
         appendLine()
         appendLine("REPORT: $reportId")
         appendLine("CASE: ${case.name}")
+        appendLine("JURISDICTION: ${config.name}")
         appendLine()
         appendLine("This forensic analysis report contains a comprehensive examination of")
         appendLine("${case.evidenceItems.size} evidence item(s) collected and cryptographically")
@@ -278,13 +320,13 @@ class ForensicPdfGenerator(private val context: Context) {
         }
         appendLine()
 
-        // Time span
+        // Time span with jurisdiction-specific timestamps
         if (case.evidenceItems.isNotEmpty()) {
             val earliest = case.evidenceItems.minOf { it.timestamp }
             val latest = case.evidenceItems.maxOf { it.timestamp }
             appendLine("Collection Period:")
-            appendLine("  From: ${dateFormatter.format(earliest)}")
-            appendLine("  To:   ${dateFormatter.format(latest)}")
+            appendLine("  From: ${config.timestampFormatter.format(earliest)}")
+            appendLine("  To:   ${config.timestampFormatter.format(latest)}")
             appendLine()
         }
 
@@ -318,8 +360,8 @@ class ForensicPdfGenerator(private val context: Context) {
         appendLine()
         appendLine("Evidence is collected using secure methods that preserve:")
         appendLine("  • Original file integrity")
-        appendLine("  • Timestamp accuracy")
-        appendLine("  • Location data (when available)")
+        appendLine("  • Timestamp accuracy (jurisdiction-specific)")
+        appendLine("  • GPS location data (for jurisdiction detection)")
         appendLine("  • Device metadata")
         appendLine()
         appendLine("─".repeat(40))
@@ -375,6 +417,55 @@ class ForensicPdfGenerator(private val context: Context) {
     }
 
     /**
+     * Builds the jurisdiction compliance section
+     */
+    private fun buildJurisdictionSection(jurisdiction: Jurisdiction): String = buildString {
+        val config = jurisdictionEngine.getComplianceConfig(jurisdiction)
+        
+        appendLine("═".repeat(80))
+        appendLine("JURISDICTION COMPLIANCE")
+        appendLine("═".repeat(80))
+        appendLine()
+        appendLine("This report complies with ${config.name} (${config.code}) legal standards.")
+        appendLine()
+        appendLine("─".repeat(40))
+        appendLine("APPLICABLE LEGAL FRAMEWORK")
+        appendLine("─".repeat(40))
+        appendLine()
+        
+        config.evidenceStandards.forEach { standard ->
+            appendLine("  • $standard")
+        }
+        
+        appendLine()
+        appendLine("─".repeat(40))
+        appendLine("DATA PROTECTION")
+        appendLine("─".repeat(40))
+        appendLine()
+        appendLine(config.dataProtectionAct)
+        appendLine()
+        
+        appendLine("─".repeat(40))
+        appendLine("LEGAL DISCLAIMER")
+        appendLine("─".repeat(40))
+        appendLine()
+        config.legalDisclaimer.lines().forEach { line ->
+            appendLine(line)
+        }
+        appendLine()
+        
+        appendLine("─".repeat(40))
+        appendLine("TIMESTAMP FORMAT")
+        appendLine("─".repeat(40))
+        appendLine()
+        appendLine("All timestamps in this report use ${config.name} timezone:")
+        appendLine("  Format: ${config.timestampFormatter.format(Instant.now())}")
+        appendLine()
+        
+        appendLine("═".repeat(80))
+    }
+
+    /**
      * Builds the findings section
      */
     private fun buildFindingsSection(case: ForensicCase, narrative: String): String = buildString {
@@ -388,9 +479,11 @@ class ForensicPdfGenerator(private val context: Context) {
     }
 
     /**
-     * Builds the raw evidence appendix
+     * Builds the raw evidence appendix with jurisdiction-aware timestamps
      */
-    private fun buildRawEvidenceAppendix(case: ForensicCase): String = buildString {
+    private fun buildRawEvidenceAppendix(case: ForensicCase, jurisdiction: Jurisdiction): String = buildString {
+        val config = jurisdictionEngine.getComplianceConfig(jurisdiction)
+        
         appendLine("═".repeat(80))
         appendLine("APPENDIX A: RAW EVIDENCE LISTING")
         appendLine("═".repeat(80))
@@ -407,7 +500,7 @@ class ForensicPdfGenerator(private val context: Context) {
                 appendLine("ID: ${evidence.id}")
                 appendLine("Type: ${evidence.type.name}")
                 appendLine("Description: ${evidence.description}")
-                appendLine("Timestamp: ${dateFormatter.format(evidence.timestamp)}")
+                appendLine("Timestamp: ${config.timestampFormatter.format(evidence.timestamp)}")
                 appendLine()
                 appendLine("Cryptographic Seal:")
                 appendLine("  Content Hash: ${evidence.contentHash}")

@@ -98,6 +98,36 @@ class ForensicNarrativeGeneratorTest {
     }
 
     @Test
+    fun `generateNarrative includes jurisdiction compliance section`() {
+        val case = createTestCase()
+
+        val narrative = narrativeGenerator.generateNarrative(case)
+
+        assertTrue(narrative.contains("JURISDICTION COMPLIANCE"))
+    }
+
+    @Test
+    fun `generateNarrative uses jurisdiction-specific information`() {
+        val case = createTestCase()
+
+        // Test with UAE jurisdiction
+        val narrativeUAE = narrativeGenerator.generateNarrative(case, org.verumomnis.forensic.jurisdiction.Jurisdiction.UAE)
+        assertTrue(narrativeUAE.contains("United Arab Emirates"))
+
+        // Test with South Africa jurisdiction
+        val narrativeSA = narrativeGenerator.generateNarrative(case, org.verumomnis.forensic.jurisdiction.Jurisdiction.SOUTH_AFRICA)
+        assertTrue(narrativeSA.contains("South Africa"))
+
+        // Test with EU jurisdiction
+        val narrativeEU = narrativeGenerator.generateNarrative(case, org.verumomnis.forensic.jurisdiction.Jurisdiction.EUROPEAN_UNION)
+        assertTrue(narrativeEU.contains("European Union"))
+
+        // Test with US jurisdiction (default)
+        val narrativeUS = narrativeGenerator.generateNarrative(case, org.verumomnis.forensic.jurisdiction.Jurisdiction.UNITED_STATES)
+        assertTrue(narrativeUS.contains("United States"))
+    }
+
+    @Test
     fun `generateNarrative handles empty evidence list`() {
         val case = ForensicCase(
             id = "test-case-empty",

@@ -11,6 +11,9 @@ import org.verumomnis.forensic.crypto.ForensicTripleHashSeal
 import org.verumomnis.forensic.crypto.TamperDetectionResult
 import org.verumomnis.forensic.custody.ChainOfCustodyLogger
 import org.verumomnis.forensic.custody.CustodyAction
+import org.verumomnis.forensic.jurisdiction.Jurisdiction
+import org.verumomnis.forensic.jurisdiction.JurisdictionComplianceEngine
+import org.verumomnis.forensic.location.ForensicLocation
 import org.verumomnis.forensic.location.ForensicLocationService
 import org.verumomnis.forensic.pdf.ForensicPdfGenerator
 import org.verumomnis.forensic.report.ForensicNarrativeGenerator
@@ -52,6 +55,7 @@ class ForensicEngine(private val context: Context) {
 
     private val sealingEngine = CryptographicSealingEngine()
     private val locationService = ForensicLocationService(context)
+    private val jurisdictionEngine = JurisdictionComplianceEngine()
     private val narrativeGenerator = ForensicNarrativeGenerator()
     private val pdfGenerator = ForensicPdfGenerator(context)
     private val verificationEngine = OfflineVerificationEngine()
@@ -103,6 +107,11 @@ class ForensicEngine(private val context: Context) {
             locationService.getCurrentLocation()
         } catch (_: Exception) {
             null
+        }
+
+        // Auto-detect jurisdiction from GPS location
+        if (case.jurisdiction == null && location != null) {
+            case.jurisdiction = detectJurisdiction(location)
         }
 
         // Create cryptographic seal
@@ -344,15 +353,22 @@ class ForensicEngine(private val context: Context) {
         case: ForensicCase,
         tripleHashSeal: ForensicTripleHashSeal? = null
     ): File = withContext(Dispatchers.IO) {
-        // Generate narrative
-        val narrative = narrativeGenerator.generateNarrative(case)
+        // Ensure jurisdiction is set (use first evidence location if not set)
+        if (case.jurisdiction == null && case.evidenceItems.isNotEmpty()) {
+            val firstLocationEvidence = case.evidenceItems.firstOrNull { it.location != null }
+            case.jurisdiction = detectJurisdiction(firstLocationEvidence?.location)
+        }
 
-        // Generate court-ready PDF
+        // Generate jurisdiction-aware narrative
+        val narrative = narrativeGenerator.generateNarrative(case, case.jurisdiction)
+
+        // Generate court-ready PDF with jurisdiction compliance
         val report = pdfGenerator.generateForensicReport(
             case = case,
             narrative = narrative,
             tripleHashSeal = tripleHashSeal,
-            custodyLogger = custodyLogger
+            custodyLogger = custodyLogger,
+            jurisdiction = case.jurisdiction ?: Jurisdiction.UNITED_STATES
         )
 
         // Log report generation
@@ -383,6 +399,46 @@ class ForensicEngine(private val context: Context) {
      * Exports the chain of custody log as a formatted report
      */
     fun exportChainOfCustodyReport(): String = custodyLogger.exportReport()
+
+    /**
+     * Detects jurisdiction based on GPS location.
+     * 
+     * Uses GPS coordinates to determine the applicable legal jurisdiction
+     * for forensic evidence standards and compliance.
+     * 
+     * @param location GPS location of evidence collection
+     * @return Jurisdiction enum value (UAE, SOUTH_AFRICA, EUROPEAN_UNION, UNITED_STATES)
+     */
+    fun detectJurisdiction(location: ForensicLocation?): Jurisdiction {
+        if (location == null) {
+            // Default to US jurisdiction if no location available
+            return Jurisdiction.UNITED_STATES
+        }
+
+        val lat = location.latitude
+        val lon = location.longitude
+
+        // UAE: Approximate bounds
+        // Latitude: 22.5° to 26.0°N, Longitude: 51.0° to 56.5°E
+        if (lat in 22.5..26.0 && lon in 51.0..56.5) {
+            return Jurisdiction.UAE
+        }
+
+        // South Africa: Approximate bounds
+        // Latitude: -35.0° to -22.0°S, Longitude: 16.0° to 33.0°E
+        if (lat in -35.0..-22.0 && lon in 16.0..33.0) {
+            return Jurisdiction.SOUTH_AFRICA
+        }
+
+        // European Union: Approximate bounds (simplified)
+        // Latitude: 35.0° to 71.0°N, Longitude: -10.0° to 40.0°E
+        if (lat in 35.0..71.0 && lon in -10.0..40.0) {
+            return Jurisdiction.EUROPEAN_UNION
+        }
+
+        // Default to United States for other locations
+        return Jurisdiction.UNITED_STATES
+    }
 }
 
 /**
@@ -393,7 +449,8 @@ data class ForensicCase(
     val name: String,
     val createdAt: Instant,
     val directory: File,
-    val evidenceItems: MutableList<ForensicEvidence>
+    val evidenceItems: MutableList<ForensicEvidence>,
+    var jurisdiction: Jurisdiction? = null
 )
 
 /**
