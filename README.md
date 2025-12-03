@@ -4,13 +4,21 @@
 
 An Android application for collecting, sealing, and reporting forensic evidence in accordance with the Verum Omnis Constitutional Governance Layer.
 
-## 🚀 Ready to Test?
+## 🚀 Quick Start
 
-**All APKs are signed and ready for installation!** 
+### For Developers (Building from Source)
+👉 **[See QUICK_START.md for 5-minute setup](QUICK_START.md)**  
+👉 **[See ANDROID_STUDIO_SETUP.md for detailed instructions](ANDROID_STUDIO_SETUP.md)**
 
+```bash
+git clone https://github.com/Liamhigh/take2.git
+cd take2
+# Open in Android Studio and build
+```
+
+### For Testers (Pre-built APKs)
 👉 **[See TESTING.md for download and installation instructions](TESTING.md)**
 
-Quick download:
 ```bash
 ./download-apk.sh
 ```
