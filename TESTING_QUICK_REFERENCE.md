@@ -67,7 +67,7 @@ app/src/test/java/org/verumomnis/forensic/
 | Issue | Solution |
 |-------|----------|
 | Gradle sync fails | Check internet connection to dl.google.com |
-| Tests don't appear | Invalidate caches: **File → Invalidate Caches/Restart** |
+| Tests don't appear | Invalidate caches: **File → Invalidate Caches and Restart** |
 | JDK version error | Set to JDK 17 in **File → Project Structure** |
 | Out of memory | Increase heap: **File → Settings → Compiler** |
 

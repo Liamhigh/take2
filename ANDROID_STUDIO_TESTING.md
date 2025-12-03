@@ -164,7 +164,7 @@ If tests don't show up in the IDE:
 
 1. Ensure you're in the **Project** view (not **Android** view)
 2. Right-click on the test directory and select **Mark Directory as → Test Sources Root**
-3. Invalidate caches: **File → Invalidate Caches / Restart**
+3. Invalidate caches: **File → Invalidate Caches and Restart**
 
 ### JDK Version Issues
 
