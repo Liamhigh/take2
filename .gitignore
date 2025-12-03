@@ -2,7 +2,8 @@
 *.iml
 .gradle/
 local.properties
-.idea/
+.idea/*
+!.idea/runConfigurations/
 build/
 *.apk
 *.aab
