@@ -43,8 +43,8 @@ companion object {
 
 **Implementation Highlights:**
 - ✅ Court-ready forensic PDF generation
-- ✅ Targets PDF/A-3B archival format compliance
-- ✅ ISO 27037 compliant
+- ⚠️ Targets PDF/A-3B archival format compliance (planned, not fully implemented yet)
+- ✅ ISO 27037 compliant structure
 - ✅ Daubert Standard methodology documentation
 - ✅ QR code generation for hash verification (200x200px)
 - ✅ Forensic watermark on every page
@@ -153,7 +153,9 @@ Enables independent verification without cloud connectivity.
 
 ### 1. Fragments ❌
 
-The application uses **Activities + Jetpack Compose** exclusively. No Fragment classes found. This is actually a modern Android architecture pattern - Compose replaces the need for Fragments in many cases.
+The application uses **Activities + Jetpack Compose** exclusively. No Fragment classes found. This is a modern Android architecture pattern - Compose replaces the need for Fragments in many cases.
+
+**Note:** This architectural choice means the app may not be optimized for tablets or complex multi-pane navigation scenarios where Fragments traditionally excel. For the forensic use case on phones, this is acceptable.
 
 ### 2. Case Creation/Saving Classes ❌
 
