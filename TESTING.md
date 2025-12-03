@@ -374,10 +374,10 @@ After comprehensive analysis of all Liamhigh repositories, **THREE repositories*
 
 ### Other Repositories (NOT Recommended for Production)
 
-❌ **`Liam-Highcock-`** - TypeScript (browser-based, not native Android)  
-❌ **`VerumAndroid`** - HTML-based (hybrid app, lower performance)  
-❌ **`Androidengine`** - TypeScript (on-device but not native)  
-❌ **All other repos** - Web-based or incomplete implementations
+❌ **`Liam-Highcock-`** (note: repository name ends with dash) - TypeScript/Kotlin hybrid (browser-based components, not fully native Android)  
+❌ **`VerumAndroid`** - HTML-based (hybrid app architecture, lower performance than native)  
+❌ **`Androidengine`** - TypeScript (on-device but not native Android)  
+❌ **All other 40+ repos** - Web-based, incomplete, or non-Android implementations
 
 ### Final Recommendation for SAPS
 
@@ -432,7 +432,8 @@ After comprehensive analysis of all Liamhigh repositories, **THREE repositories*
 adb install downloaded-apks/release/app-release.apk
 ```
 
-Or download directly from: https://github.com/Liamhigh/take2/actions/workflows/build-apk.yml
+Or download directly from GitHub Actions: https://github.com/Liamhigh/take2/actions
+(Navigate to the "Build Android APK" workflow and download the latest artifacts)
 
 ### Contradiction Engine Capabilities
 
