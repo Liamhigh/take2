@@ -2,6 +2,19 @@
 
 This guide explains how to run the Verum Omnis unit tests in Android Studio IDE.
 
+## 🎯 TL;DR - Quick Start
+
+**The project now includes 6 pre-configured test runners!**
+
+Just open the project in Android Studio and:
+1. Click the **Run Configuration** dropdown (top-right toolbar)
+2. Select **"All Unit Tests"** or any specific test class
+3. Click **Run** ▶
+
+No configuration needed - everything is ready to go!
+
+---
+
 ## Prerequisites
 
 Before you can run tests in Android Studio, you need:
