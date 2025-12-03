@@ -317,13 +317,13 @@ If you have questions about testing or installing the app, please:
 
 After comprehensive analysis of all Liamhigh repositories, **THREE repositories** contain Android-native contradiction engines suitable for SAPS (South African Police Service) case files:
 
-#### 🥇 **#1 RECOMMENDED: `Liam-Highcock`** (Newest & Most Complete)
-- **Repository:** https://github.com/Liamhigh/Liam-Highcock
-- **Description:** "Offline forensic engine"
-- **Status:** ✅ Most recent (Created Dec 2025), actively maintained
-- **Engine:** `LevelerEngine.kt` - Full contradiction detection system
+#### 🥇 **#1 RECOMMENDED FOR DEPLOYMENT: `take2`** (Current Repository - Production Ready)
+- **Repository:** https://github.com/Liamhigh/take2 (this repository)
+- **Description:** "verum"
+- **Status:** ✅ **Production-ready**, well-tested, CI/CD pipeline active
+- **Engine:** `LevelerEngine.kt` - Implements verum-constitution.json
 - **Language:** Kotlin (Native Android)
-- **Features:**
+- **Core Contradiction Features:**
   - ✅ Timeline analysis
   - ✅ Statement comparison
   - ✅ Behavioral inconsistencies
@@ -333,27 +333,32 @@ After comprehensive analysis of all Liamhigh repositories, **THREE repositories*
   - ✅ Integrity scoring (0-100%)
   - ✅ Suspicion scoring (0.0-1.0)
   - ✅ Cross-document analysis
-  - ✅ Production-ready documentation
-  - ✅ Comprehensive unit tests
-- **Suitability for SAPS:** ⭐⭐⭐⭐⭐ **EXCELLENT** - Built specifically for law enforcement forensics
-
-#### 🥈 **#2 RECOMMENDED: `take2`** (Current Repository - Proven & Tested)
-- **Repository:** https://github.com/Liamhigh/take2 (this repository)
-- **Description:** "verum"
-- **Status:** ✅ Proven, well-tested, CI/CD pipeline active
-- **Engine:** `LevelerEngine.kt` - Implements verum-constitution.json
-- **Language:** Kotlin (Native Android)
-- **Features:**
-  - ✅ All features from Liam-Highcock (same codebase)
-  - ✅ GitHub Actions CI/CD with APK artifacts
-  - ✅ Automated builds every commit
-  - ✅ Pre-signed APKs available for download
+- **Production Advantages:**
+  - ✅ **GitHub Actions CI/CD with APK artifacts**
+  - ✅ **Automated builds every commit**
+  - ✅ **Pre-signed APKs available for immediate download**
   - ✅ 10 forensic modules integrated
   - ✅ SHA-512 cryptographic sealing
   - ✅ PDF report generation with QR codes
   - ✅ Chain of custody logging
   - ✅ GPS location tagging
-- **Suitability for SAPS:** ⭐⭐⭐⭐⭐ **EXCELLENT** - Ready to deploy now
+  - ✅ Comprehensive test suite
+  - ✅ Complete documentation
+- **Suitability for SAPS:** ⭐⭐⭐⭐⭐ **EXCELLENT** - Deploy immediately for case work
+
+#### 🥈 **#2 RECOMMENDED FOR DEVELOPMENT: `Liam-Highcock`** (Newest Codebase)
+- **Repository:** https://github.com/Liamhigh/Liam-Highcock
+- **Description:** "Offline forensic engine"
+- **Status:** ✅ Most recent version (Created Dec 2025), actively maintained
+- **Engine:** `LevelerEngine.kt` - Same contradiction detection core as take2
+- **Language:** Kotlin (Native Android)
+- **Features:**
+  - ✅ Same LevelerEngine implementation as take2
+  - ✅ Production-ready documentation
+  - ✅ Comprehensive unit tests
+  - ⚠️ **No CI/CD pipeline yet** - manual builds required
+  - ⚠️ **No pre-built APKs** - must build from source
+- **Suitability for SAPS:** ⭐⭐⭐⭐ **VERY GOOD** - Best for future development, not immediate deployment
 
 #### 🥉 **#3 ALTERNATIVE: `Verumdec`** (Modular Architecture)
 - **Repository:** https://github.com/Liamhigh/Verumdec
@@ -376,13 +381,24 @@ After comprehensive analysis of all Liamhigh repositories, **THREE repositories*
 
 ### Final Recommendation for SAPS
 
-**Use `take2` (this repository)** for immediate deployment because:
+**Use `take2` (this repository)** for immediate deployment because it provides the same LevelerEngine contradiction detection as `Liam-Highcock` PLUS production infrastructure:
+
+**Why `take2` over `Liam-Highcock`:**
+- Both repositories contain the **same LevelerEngine.kt core** with identical contradiction detection logic
+- `take2` adds **production deployment infrastructure** that `Liam-Highcock` currently lacks:
+  - ✅ GitHub Actions CI/CD automatically building APKs
+  - ✅ Pre-signed APKs ready for immediate download
+  - ✅ Proven deployment in the field
+  - ✅ Full forensic suite integration (not just contradiction detection)
+
+**Key Advantages for SAPS:**
 
 1. ✅ **Production-Ready NOW** - APKs are pre-built and signed
 2. ✅ **Proven Reliability** - Comprehensive test suite passing
 3. ✅ **Complete Documentation** - Installation guides ready
 4. ✅ **CI/CD Pipeline** - Automatic builds and artifacts
-5. ✅ **Full Forensic Suite** - Not just contradiction engine, but complete evidence management:
+5. ✅ **Full Forensic Suite** - Complete evidence management system:
+   - **Contradiction engine** (LevelerEngine)
    - Document scanning
    - Photo evidence capture
    - GPS location tracking
@@ -400,6 +416,11 @@ After comprehensive analysis of all Liamhigh repositories, **THREE repositories*
    - Airgap-ready for sensitive cases
    - No cloud logging or telemetry
    - FLAG_SECURE prevents screenshots of evidence
+
+**Future Development Note:**
+- `Liam-Highcock` is the newest codebase and will receive future enhancements first
+- Once `Liam-Highcock` gets CI/CD, it may become the recommended deployment choice
+- For now, `take2` is the safest choice for operational case work
 
 ### Quick Start for SAPS Officers
 
