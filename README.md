@@ -19,13 +19,13 @@ Quick download:
 
 **For developers who want to build and modify the app:**
 
-👉 **[See ANDROID_STUDIO_SETUP.md for complete setup instructions](ANDROID_STUDIO_SETUP.md)**
+👉 **[BUILD_INSTRUCTIONS.md - Complete Build Guide](BUILD_INSTRUCTIONS.md)**
 
-This guide includes:
-- Step-by-step clone and build instructions
-- Android Studio configuration
-- Troubleshooting common issues
-- How to run tests and generate APKs
+Quick links:
+- **[ANDROID_STUDIO_SETUP.md](ANDROID_STUDIO_SETUP.md)** - Step-by-step setup instructions
+- **[QUICK_BUILD_FIXES.md](QUICK_BUILD_FIXES.md)** - Troubleshooting reference
+
+This branch is ready to build in Android Studio with all files configured correctly.
 
 ## Features
 
