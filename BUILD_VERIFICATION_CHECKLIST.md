@@ -232,8 +232,8 @@ XX actionable tasks: XX executed
 # Check APK exists
 ls -lh app/build/outputs/apk/debug/app-debug.apk
 
-# Should see file ~35-40 MB
--rw-r--r-- 1 user group 35M Dec 3 12:00 app-debug.apk
+# Should see file ~36 MB
+-rw-r--r-- 1 user group 36M Dec 3 12:00 app-debug.apk
 ```
 
 ### Step 8: Run Tests

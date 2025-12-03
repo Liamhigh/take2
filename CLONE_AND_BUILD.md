@@ -155,7 +155,7 @@ BUILD SUCCESSFUL in 45s
 ```
 
 **APK Location:**
-- Debug: `app/build/outputs/apk/debug/app-debug.apk` (~35 MB)
+- Debug: `app/build/outputs/apk/debug/app-debug.apk` (~36 MB)
 - Release: `app/build/outputs/apk/release/app-release.apk` (~24 MB)
 
 ### Step 6: Run on Device or Emulator
@@ -310,7 +310,7 @@ Module: app
 Build Variant: debug (or release)
 
 APK Details:
-- Size: ~35 MB (debug) or ~24 MB (release)
+- Size: ~36 MB (debug) or ~24 MB (release)
 - Min SDK: 26 (Android 8.0)
 - Target SDK: 34 (Android 14)
 - Signed: Yes (debug keystore)

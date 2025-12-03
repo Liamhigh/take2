@@ -407,7 +407,8 @@ If you encounter issues not covered in this guide:
 
 3. Review existing documentation:
    - `BUILD_STATUS.md` - Latest build information
-   - `BUILD_TROUBLESHOOTING.md` - Additional troubleshooting
+   - `BUILD_VERIFICATION.md` - Build verification details
+   - `BUILD_FIX_SUMMARY.md` - Build fixes and improvements
 
 ## ✅ Success Checklist
 
