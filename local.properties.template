@@ -1,4 +1,4 @@
-## This file must *NOT* be checked into Version Control Systems,
+# This file must *NOT* be checked into Version Control Systems,
 # as it contains information specific to your local configuration.
 #
 # Location of the Android SDK. This is only needed for building
@@ -6,7 +6,7 @@
 #
 # Copy this file to 'local.properties' and update the path below
 # to match your Android SDK installation location.
-
+#
 # Android SDK location
 # Uncomment and modify the line below based on your operating system:
 
