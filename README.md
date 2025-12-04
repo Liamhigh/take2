@@ -19,7 +19,10 @@ Quick download:
 
 - **Cryptographic Evidence Sealing**: SHA-512 hashing with HMAC-SHA512 sealing for tamper detection
 - **GPS Location Capture**: Automatic geolocation of evidence at collection time
+- **Jurisdiction Detection**: Auto-detects legal jurisdiction from GPS coordinates (UAE, South Africa, EU, US)
+- **Accurate Timestamps**: Jurisdiction-specific timestamp formatting for legal compliance
 - **AI-Readable PDF Reports**: Structured forensic narratives following legal admissibility standards
+- **Jurisdiction Compliance**: Reports include jurisdiction-specific legal standards and disclaimers
 - **Offline-First Design**: No cloud logging, no telemetry, airgap ready
 - **Stateless Operation**: No persistent user data beyond case files
 
