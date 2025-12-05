@@ -129,9 +129,9 @@ If you prefer to test without building locally:
 
 1. Go to [GitHub Actions](https://github.com/Liamhigh/take2/actions/workflows/build-apk.yml)
 2. Click the latest successful workflow run (green checkmark)
-3. Download artifacts:
-   - `verum-omnis-debug-apk`
-   - `verum-omnis-release-apk`
+3. Download artifacts (named from CI/CD workflow):
+   - `verum-omnis-debug-apk` → Debug APK
+   - `verum-omnis-release-apk` → Release APK
 
 Or use the download script:
 ```bash
