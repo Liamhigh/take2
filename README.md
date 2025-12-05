@@ -236,7 +236,7 @@ app/src/main/java/org/verumomnis/forensic/
 
 ## License
 
-Copyright © 2024
+Copyright © 2024 Forensic Evidence App
 
 ## Creator
 
