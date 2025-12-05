@@ -1,138 +1,225 @@
-# Verum Omnis Forensic Engine
+# Forensic Evidence App
 
 ![Build Status](https://github.com/Liamhigh/take2/actions/workflows/build-apk.yml/badge.svg)
 
-An Android application for collecting, sealing, and reporting forensic evidence in accordance with the Verum Omnis Constitutional Governance Layer.
+## Overview
 
-## 🚀 Ready to Test?
+This project is an offline-first Android application designed to let a user create a case, collect evidence, process it locally through a simple forensic workflow, and generate a final report. The app does not rely on external servers. All data is stored and processed on the device.
 
-**All APKs are signed and ready for installation!** 
+The README describes what the app is supposed to do, so that Copilot or any developer can understand the intended behaviour when generating or updating code.
 
-👉 **[See TESTING.md for download and installation instructions](TESTING.md)**
+## Core Purpose
 
-Quick download:
-```bash
-./download-apk.sh
+The app follows a basic forensic workflow:
+
+1. Create a new case
+2. Add evidence (text, images, audio, video, documents)
+3. Store evidence locally
+4. Run simple analysis (hashing, metadata extraction, basic checks)
+5. Generate a final report
+6. Allow the user to view or export that report
+
+The app is meant to act as a self-contained mobile evidence toolkit.
+
+## Main Features
+
+### 1. Case Creation
+
+- User enters a case name
+- App generates a unique case ID
+- Case folder is created on device storage
+- Metadata file (case.json) is created
+
+### 2. Evidence Capture
+
+The user may add any of the following:
+
+- Text notes
+- Photos (via camera or gallery)
+- Audio recordings
+- Video recordings
+- Imported documents
+
+Evidence is stored in:
+```
+/cases/{caseId}/evidence/
 ```
 
-## Features
+Each item includes:
+- Evidence ID
+- Type (text/image/audio/video/file)
+- Timestamp
+- Hash (SHA-512)
+- File path
 
-- **Cryptographic Evidence Sealing**: SHA-512 hashing with HMAC-SHA512 sealing for tamper detection
-- **GPS Location Capture**: Automatic geolocation of evidence at collection time
-- **Jurisdiction Detection**: Auto-detects legal jurisdiction from GPS coordinates (UAE, South Africa, EU, US)
-- **Accurate Timestamps**: Jurisdiction-specific timestamp formatting for legal compliance
-- **AI-Readable PDF Reports**: Structured forensic narratives following legal admissibility standards
-- **Jurisdiction Compliance**: Reports include jurisdiction-specific legal standards and disclaimers
-- **Offline-First Design**: No cloud logging, no telemetry, airgap ready
-- **Stateless Operation**: No persistent user data beyond case files
+### 3. Local Forensic Processing
 
-## Constitutional Governance
+The app runs basic offline processing:
 
-This application operates under the Verum Omnis Constitution Mode, which enforces:
+- File hashing (SHA-512)
+- Timestamp extraction
+- Optional GPS tagging (if user allows)
+- Basic text summary or metadata extraction
 
-### Core Principles
-1. **Truth** - Factual accuracy and verifiable evidence
-2. **Fairness** - Protection of vulnerable parties
-3. **Human Rights** - Dignity, equality, and agency
-4. **Non-Extraction** - No sensitive data transmission
-5. **Human Authority** - AI assists, never overrides
-6. **Integrity** - No manipulation or bias
-7. **Independence** - No external influence on outputs
+This produces a structured analysis result used in the report.
 
-### Forensic Standards
-- Hash Standard: SHA-512
-- PDF Standard: PDF 1.7
-- Watermark: VERUM OMNIS 3D LOGO CENTERED
-- QR Code Inclusion: Yes
-- Tamper Detection: Mandatory
-- Admissibility Standard: Legal-grade
+### 4. Report Generation
 
-### Security
-- Offline First: True
-- Stateless: True
-- No Cloud Logging: True
-- No Telemetry: True
-- Airgap Ready: True
+The app produces a final case report that contains:
 
-## Building
+- Case name and metadata
+- List of evidence items
+- Evidence hashes
+- Basic summaries
+- A single combined report file
+
+Reports are saved under:
+```
+/cases/{caseId}/reports/
+```
+
+### 5. Report Viewer
+
+The user can open the generated report inside the app.
+
+## Offline-First Design
+
+- No data leaves the device
+- No cloud uploads
+- No external services
+- Fully self-contained mobile workflow
+
+This allows the app to operate in low-connectivity or secure environments.
+
+## Main Activities / Screens
+
+### MainActivity
+- Lets the user create a new case
+- Navigates to CaseDetail screen
+
+### CaseDetailActivity (or screen)
+- Shows case metadata
+- Shows list of added evidence
+- Buttons to add evidence
+- Button to generate the final report
+
+### ScannerActivity
+- Captures photos or scanned documents
+- Saves them into the case folder
+
+### AudioRecorderActivity
+- Records a short audio clip
+- Saves the audio file and computes a hash
+
+### VideoRecorderActivity
+- Records a short video clip
+- Saves the file to evidence folder
+
+### ReportViewerActivity
+- Loads and displays the generated report
+
+## Required Logic (High-Level)
+
+### Case Management
+- Create folder
+- Save case metadata
+- Maintain list of evidence
+
+### Evidence Handling
+- Save files
+- Generate SHA-512 hash
+- Append item to the case's evidence list
+
+### Processing
+- Run analysis
+- Produce a structured result object
+
+### Report Generation
+- Build report text or PDF
+- Save it to /reports/
+- Show it in the viewer screen
+
+## Technology Stack (Generic)
+
+- Kotlin
+- Android SDK
+- CameraX (for photos)
+- MediaRecorder (audio/video)
+- Coroutines (for background work)
+- File I/O (for local storage)
+- Optional: simple PDF generator
+
+## App Flow Summary
+
+```
+Start
+  ↓
+MainActivity → create case
+  ↓
+CaseDetailActivity → add evidence (image/audio/video/text/file)
+  ↓
+Processing Engine → hashing + metadata
+  ↓
+Generate Report
+  ↓
+ReportViewerActivity → user views or exports report
+  ✔
+```
+
+## Building the App
 
 ### Prerequisites
 - Android Studio Hedgehog or later
 - JDK 17
 - Android SDK 34
 
-### ⚠️ Build Environment Notice
-
-**Local builds require access to Google's Maven repository** (`dl.google.com`, `maven.google.com`) for Android Gradle Plugin and dependencies.
-
-**If you cannot build locally due to network restrictions:**
-- ✅ **CI builds on GitHub Actions work perfectly** and produce APKs for every commit
-- ✅ Download pre-built APKs from the latest successful workflow run in the [Actions tab](https://github.com/Liamhigh/take2/actions/workflows/build-apk.yml)
-- ✅ APKs are available as artifacts: `verum-omnis-debug-apk` and `verum-omnis-release-apk`
-
-### Build Debug APK (when network access available)
+### Build Debug APK
 ```bash
 ./gradlew assembleDebug
 ```
 
-### Build Release APK (when network access available)
+### Build Release APK
 ```bash
 ./gradlew assembleRelease
 ```
 
 The APK will be output to `app/build/outputs/apk/`
 
-### APK Signing
+### ⚠️ Build Environment Notice
 
-All APKs are automatically signed during the build process. For detailed information about APK signing, verification, and production configuration, see [APK_SIGNING.md](APK_SIGNING.md).
+**Local builds require access to Google's Maven repository** for Android dependencies.
 
-**Quick verification:**
+**If you cannot build locally:**
+- CI builds on GitHub Actions work and produce APKs for every commit
+- Download pre-built APKs from the [Actions tab](https://github.com/Liamhigh/take2/actions/workflows/build-apk.yml)
+- APKs are available as workflow artifacts
+
+### Quick Download
 ```bash
-./scripts/verify-apk-signature.sh  # Verifies all built APKs
-./scripts/verify-apk-signature.sh app/build/outputs/apk/debug/app-debug.apk  # Verify specific APK
+./download-apk.sh
 ```
 
-### Alternative: Download Pre-built APKs
+## Testing
 
-If local builds fail due to network restrictions, you can download APKs built by CI:
-
-1. Go to [Actions → Build Android APK](https://github.com/Liamhigh/take2/actions/workflows/build-apk.yml)
-2. Click on the latest successful workflow run (green checkmark)
-3. Scroll to "Artifacts" section at the bottom
-4. Download `verum-omnis-debug-apk` or `verum-omnis-release-apk`
-
-## Usage
-
-1. **Create a Case** - Start by creating a new forensic case with a descriptive name
-2. **Add Evidence** - Use the scanner to capture documents, photos, or text notes
-3. **Generate Report** - Create a forensic PDF report with full evidence chain
-4. **View/Share Reports** - Access and share sealed forensic reports
-
-## Evidence Types
-
-- Documents (scanned)
-- Photos (captured)
-- Text (notes and observations)
-- Audio (coming soon)
-- Video (coming soon)
+See [TESTING.md](TESTING.md) for detailed installation and testing instructions.
 
 ## Project Structure
 
 ```
 app/src/main/java/org/verumomnis/forensic/
-├── core/                    # Core forensic engine
+├── core/                    # Core forensic engine and data models
 │   ├── ForensicEngine.kt
 │   ├── ForensicEvidence.kt
 │   └── VerumOmnisApplication.kt
-├── crypto/                  # Cryptographic sealing
+├── crypto/                  # Cryptographic hashing and sealing
 │   └── CryptographicSealingEngine.kt
-├── location/               # GPS location services
+├── location/                # GPS location services
 │   └── ForensicLocationService.kt
-├── pdf/                    # PDF report generation
+├── pdf/                     # PDF report generation
 │   └── ForensicPdfGenerator.kt
-├── report/                 # Narrative generation
+├── report/                  # Report narrative generation
 │   └── ForensicNarrativeGenerator.kt
-└── ui/                     # User interface
+└── ui/                      # User interface activities
     ├── MainActivity.kt
     ├── ScannerActivity.kt
     ├── ReportViewerActivity.kt
@@ -140,34 +227,16 @@ app/src/main/java/org/verumomnis/forensic/
         └── Theme.kt
 ```
 
-## FAQ
+## How to Use
 
-### Are the APKs signed?
-
-**Yes!** All APKs are automatically signed during the build process. Both debug and release APKs are properly signed and can be installed on any Android device.
-
-- ✅ Debug APKs: Signed with Android debug keystore
-- ✅ Release APKs: Signed with debug keystore (suitable for testing)
-- ✅ All APKs are installable and ready for testing
-
-For details, see [APK_SIGNING.md](APK_SIGNING.md).
-
-### How do I download and install the APKs?
-
-See the comprehensive [TESTING.md](TESTING.md) guide for step-by-step instructions.
-
-Quick download:
-```bash
-./download-apk.sh
-```
-
-### Why can't I install the APK on my device?
-
-You need to enable "Install from unknown sources" in your Android device settings. See [TESTING.md](TESTING.md) for detailed installation instructions.
+1. **Create a Case** - Start by creating a new forensic case with a descriptive name
+2. **Add Evidence** - Use the scanner to capture documents, photos, or add text notes
+3. **Generate Report** - Create a forensic PDF report with all collected evidence
+4. **View/Share Reports** - Access and share the generated reports
 
 ## License
 
-Copyright © 2024 Verum Global Foundation
+Copyright © 2024
 
 ## Creator
 
