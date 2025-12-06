@@ -12,6 +12,10 @@ class ContradictionEngine {
     
     private val sentences = mutableListOf<Sentence>()
     
+    companion object {
+        private const val REPORT_LINE_LENGTH = 50
+    }
+    
     /**
      * Ingest text and split into sentences
      */
@@ -123,9 +127,7 @@ class ContradictionEngine {
     
     private fun hasNegationContradiction(a: String, b: String): Boolean {
         // Check if one sentence is a negation of the other
-        return (a.contains("not") && !b.contains("not") || 
-                !a.contains("not") && b.contains("not")) &&
-                similarSentences(a, b)
+        return (a.contains("not") xor b.contains("not")) && similarSentences(a, b)
     }
     
     private fun similarSentences(a: String, b: String): Boolean {
@@ -148,7 +150,7 @@ class ContradictionEngine {
     fun buildReport(results: List<ContradictionResult>): String {
         val sb = StringBuilder()
         sb.appendLine("VERUM OMNIS CONTRADICTION REPORT")
-        sb.appendLine("=" .repeat(50))
+        sb.appendLine("=".repeat(REPORT_LINE_LENGTH))
         sb.appendLine()
         sb.appendLine("Total Contradictions Found: ${results.size}")
         sb.appendLine()
@@ -158,7 +160,7 @@ class ContradictionEngine {
         } else {
             results.forEachIndexed { index, result ->
                 sb.appendLine("CONTRADICTION #${index + 1}")
-                sb.appendLine("-".repeat(50))
+                sb.appendLine("-".repeat(REPORT_LINE_LENGTH))
                 sb.appendLine("Statement A (Line ${result.a.index + 1}):")
                 sb.appendLine("  \"${result.a.text}\"")
                 sb.appendLine()
@@ -170,7 +172,7 @@ class ContradictionEngine {
             }
         }
         
-        sb.appendLine("=" .repeat(50))
+        sb.appendLine("=".repeat(REPORT_LINE_LENGTH))
         sb.appendLine("End of Report")
         
         return sb.toString()
