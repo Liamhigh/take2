@@ -108,6 +108,43 @@ If local builds fail due to network restrictions, you can download APKs built by
 3. **Generate Report** - Create a forensic PDF report with full evidence chain
 4. **View/Share Reports** - Access and share sealed forensic reports
 
+## Testing
+
+### Running Tests in Android Studio
+
+The project includes comprehensive unit tests for all forensic modules. To run tests in Android Studio:
+
+👉 **[See ANDROID_STUDIO_TESTING.md for complete IDE testing guide](ANDROID_STUDIO_TESTING.md)**
+
+**Quick start:**
+1. Open the project in Android Studio
+2. Select **Run → Run 'All Unit Tests'** from the toolbar
+3. Or right-click any test file and select **Run**
+
+**Available test suites:**
+- 🔐 **CryptographicSealingEngineTest** - SHA-512 hashing and sealing (35 tests)
+- 📝 **ChainOfCustodyLoggerTest** - Evidence custody tracking
+- ⚖️ **LevelerEngineTest** - Fairness detection algorithms
+- 📄 **ForensicNarrativeGeneratorTest** - PDF report generation
+- ✅ **OfflineVerificationEngineTest** - Offline verification workflows
+
+### Running Tests from Command Line
+
+```bash
+# Run all unit tests
+./gradlew testDebugUnitTest
+
+# Generate coverage report
+./gradlew jacocoTestReport
+
+# View coverage report
+open app/build/reports/jacoco/jacocoTestReport/html/index.html
+```
+
+### CI/CD Testing
+
+All tests run automatically on every push via GitHub Actions. View results in the [Actions tab](https://github.com/Liamhigh/take2/actions).
+
 ## Evidence Types
 
 - Documents (scanned)
