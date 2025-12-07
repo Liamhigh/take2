@@ -15,6 +15,18 @@ Quick download:
 ./download-apk.sh
 ```
 
+## 🔧 Want to Build in Android Studio?
+
+**For developers who want to build and modify the app:**
+
+👉 **[BUILD_INSTRUCTIONS.md - Complete Build Guide](BUILD_INSTRUCTIONS.md)**
+
+Quick links:
+- **[ANDROID_STUDIO_SETUP.md](ANDROID_STUDIO_SETUP.md)** - Step-by-step setup instructions
+- **[QUICK_BUILD_FIXES.md](QUICK_BUILD_FIXES.md)** - Troubleshooting reference
+
+This branch is ready to build in Android Studio with all files configured correctly.
+
 ## Features
 
 - **Cryptographic Evidence Sealing**: SHA-512 hashing with HMAC-SHA512 sealing for tamper detection
@@ -55,6 +67,8 @@ This application operates under the Verum Omnis Constitution Mode, which enforce
 - Airgap Ready: True
 
 ## Building
+
+**For detailed Android Studio setup and build instructions, see [ANDROID_STUDIO_SETUP.md](ANDROID_STUDIO_SETUP.md)**
 
 ### Prerequisites
 - Android Studio Hedgehog or later
