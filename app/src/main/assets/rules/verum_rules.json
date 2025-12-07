@@ -1,0 +1,42 @@
+[
+  {
+    "trigger": "fraud",
+    "consequence": "Potential fraud detected - requires further investigation per applicable fraud statutes"
+  },
+  {
+    "trigger": "coercion",
+    "consequence": "Coercion indicators detected - review for violations of consent laws"
+  },
+  {
+    "trigger": "threat",
+    "consequence": "Threatening language detected - may constitute criminal threat under applicable law"
+  },
+  {
+    "trigger": "false statement",
+    "consequence": "False statement detected - may constitute perjury or fraudulent misrepresentation"
+  },
+  {
+    "trigger": "contract breach",
+    "consequence": "Contract breach alleged - analyze against contract law principles"
+  },
+  {
+    "trigger": "harassment",
+    "consequence": "Harassment indicators detected - review against harassment and stalking laws"
+  },
+  {
+    "trigger": "discrimination",
+    "consequence": "Discrimination allegation - analyze under equal protection and anti-discrimination laws"
+  },
+  {
+    "trigger": "unfair term",
+    "consequence": "Unfair contractual term detected - review against consumer protection laws"
+  },
+  {
+    "trigger": "privacy violation",
+    "consequence": "Privacy violation alleged - assess under data protection and privacy laws"
+  },
+  {
+    "trigger": "forgery",
+    "consequence": "Forgery suspected - requires authentication and forensic document analysis"
+  }
+]

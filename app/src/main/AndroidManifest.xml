@@ -49,6 +49,12 @@
             android:exported="false"
             android:theme="@style/Theme.VerumOmnisForensic" />
 
+        <!-- Case Detail Activity -->
+        <activity
+            android:name=".ui.CaseDetailActivity"
+            android:exported="false"
+            android:theme="@style/Theme.VerumOmnisForensic" />
+
         <!-- Report Viewer Activity -->
         <activity
             android:name=".ui.ReportViewerActivity"
