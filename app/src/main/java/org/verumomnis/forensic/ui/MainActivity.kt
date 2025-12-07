@@ -48,7 +48,10 @@ class MainActivity : ComponentActivity() {
         const val EXTRA_CASE_ID = "case_id"
     }
 
-    private var currentCase: ForensicCase? = null
+    private var _currentCase = mutableStateOf<ForensicCase?>(null)
+    private val currentCase: ForensicCase?
+        get() = _currentCase.value
+
     private lateinit var caseRepository: CaseRepository
 
     private val permissionLauncher = registerForActivityResult(
@@ -91,7 +94,7 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     MainScreen(
-                        currentCase = currentCase,
+                        currentCase = _currentCase.value,
                         onCreateCase = { caseName -> createNewCase(caseName) },
                         onAddEvidence = { startScanner() },
                         onGenerateReport = { generateReport() },
@@ -109,7 +112,7 @@ class MainActivity : ComponentActivity() {
             
             if (lastCaseId != null) {
                 caseRepository.loadCase(lastCaseId).onSuccess { case ->
-                    currentCase = case
+                    _currentCase.value = case
                     runOnUiThread {
                         Toast.makeText(
                             this@MainActivity,
@@ -129,7 +132,7 @@ class MainActivity : ComponentActivity() {
         currentCase?.let { case ->
             lifecycleScope.launch {
                 caseRepository.loadCase(case.id).onSuccess { reloadedCase ->
-                    currentCase = reloadedCase
+                    _currentCase.value = reloadedCase
                 }
             }
         }
@@ -154,30 +157,31 @@ class MainActivity : ComponentActivity() {
     private fun createNewCase(caseName: String) {
         val app = application as VerumOmnisApplication
         lifecycleScope.launch {
-            currentCase = app.forensicEngine.createNewCase(caseName)
+            val newCase = app.forensicEngine.createNewCase(caseName)
             
             // Save the case to disk
-            currentCase?.let { case ->
-                caseRepository.saveCase(case).onSuccess {
-                    // Save as last active case
-                    val prefs = getSharedPreferences("verum_omnis", MODE_PRIVATE)
-                    prefs.edit().putString("last_case_id", case.id).apply()
-                    
-                    runOnUiThread {
-                        Toast.makeText(
-                            this@MainActivity,
-                            "Case created: ${case.name}",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
-                }.onFailure { error ->
-                    runOnUiThread {
-                        Toast.makeText(
-                            this@MainActivity,
-                            "Error saving case: ${error.message}",
-                            Toast.LENGTH_LONG
-                        ).show()
-                    }
+            caseRepository.saveCase(newCase).onSuccess {
+                // Save as last active case
+                val prefs = getSharedPreferences("verum_omnis", MODE_PRIVATE)
+                prefs.edit().putString("last_case_id", newCase.id).apply()
+                
+                // Update the current case state
+                _currentCase.value = newCase
+                
+                runOnUiThread {
+                    Toast.makeText(
+                        this@MainActivity,
+                        "Case created: ${newCase.name}",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }.onFailure { error ->
+                runOnUiThread {
+                    Toast.makeText(
+                        this@MainActivity,
+                        "Error saving case: ${error.message}",
+                        Toast.LENGTH_LONG
+                    ).show()
                 }
             }
         }
@@ -227,6 +231,34 @@ class MainActivity : ComponentActivity() {
             return
         }
         startActivity(Intent(this, ReportViewerActivity::class.java))
+    }
+
+    private fun loadExistingCase(caseId: String) {
+        lifecycleScope.launch {
+            caseRepository.loadCase(caseId).onSuccess { case ->
+                _currentCase.value = case
+                
+                // Save as last active case
+                val prefs = getSharedPreferences("verum_omnis", MODE_PRIVATE)
+                prefs.edit().putString("last_case_id", case.id).apply()
+                
+                runOnUiThread {
+                    Toast.makeText(
+                        this@MainActivity,
+                        "Loaded case: ${case.name}",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }.onFailure { error ->
+                runOnUiThread {
+                    Toast.makeText(
+                        this@MainActivity,
+                        "Error loading case: ${error.message}",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+            }
+        }
     }
 }
 
