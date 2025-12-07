@@ -50,6 +50,7 @@ class LevelerEngineTest {
     fun `analyzeDocument detects multiple evasion keywords`() {
         val content = """
             I don't recall. I don't recall. I don't recall.
+            I don't recall. I don't recall.
             I can't remember. I can't remember.
             Not sure about that.
         """.trimIndent()
@@ -60,7 +61,7 @@ class LevelerEngineTest {
         val totalOccurrences = analysis.evasionPatterns.sumOf { it.occurrences }
         assertTrue("Should detect multiple evasion occurrences", totalOccurrences >= 5)
         
-        // High evasion count should result in HIGH severity
+        // High evasion count (5+ of same keyword) should result in HIGH severity
         val hasHighSeverity = analysis.evasionPatterns.any { it.severity == Severity.HIGH }
         assertTrue("Should have high severity evasion pattern", hasHighSeverity)
     }
