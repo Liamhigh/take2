@@ -7,6 +7,8 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -35,16 +37,26 @@ class ReportViewerActivity : ComponentActivity() {
             WindowManager.LayoutParams.FLAG_SECURE
         )
 
+        // Check if we have a direct report text
+        val reportText = intent.getStringExtra("reportText")
+
         setContent {
             VerumOmnisTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    ReportViewerScreen(
-                        reports = getReports(),
-                        onBack = { finish() }
-                    )
+                    if (reportText != null) {
+                        TextReportViewerScreen(
+                            reportText = reportText,
+                            onBack = { finish() }
+                        )
+                    } else {
+                        ReportViewerScreen(
+                            reports = getReports(),
+                            onBack = { finish() }
+                        )
+                    }
                 }
             }
         }
@@ -198,5 +210,53 @@ fun formatFileSize(bytes: Long): String {
         bytes < 1024 -> "$bytes B"
         bytes < 1024 * 1024 -> "${bytes / 1024} KB"
         else -> "${bytes / (1024 * 1024)} MB"
+    }
+}
+
+@Composable
+fun TextReportViewerScreen(
+    reportText: String,
+    onBack: () -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
+    ) {
+        // Header
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "Forensic Report",
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Bold
+            )
+            TextButton(onClick = onBack) {
+                Text("Back")
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Report content
+        Card(
+            modifier = Modifier.fillMaxSize()
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+                    .padding(16.dp)
+            ) {
+                Text(
+                    text = reportText,
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace
+                )
+            }
+        }
     }
 }

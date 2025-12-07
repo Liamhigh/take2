@@ -25,6 +25,8 @@ import kotlinx.coroutines.launch
 import org.verumomnis.forensic.core.ForensicCase
 import org.verumomnis.forensic.core.VerumOmnisApplication
 import org.verumomnis.forensic.crypto.CryptographicSealingEngine
+import org.verumomnis.forensic.engine.CaseRepository
+import org.verumomnis.forensic.model.Case
 import org.verumomnis.forensic.ui.theme.VerumOmnisTheme
 
 /**
@@ -44,6 +46,7 @@ import org.verumomnis.forensic.ui.theme.VerumOmnisTheme
 class MainActivity : ComponentActivity() {
 
     private var currentCase: ForensicCase? = null
+    private lateinit var caseRepository: CaseRepository
 
     private val permissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
@@ -63,6 +66,8 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        caseRepository = CaseRepository(this)
+
         // ANTI-TAMPERING: Prevent screenshots during forensic processing
         // This is required for court admissibility per forensic standards
         window.setFlags(
@@ -81,6 +86,7 @@ class MainActivity : ComponentActivity() {
                     MainScreen(
                         currentCase = currentCase,
                         onCreateCase = { caseName -> createNewCase(caseName) },
+                        onCreateSimpleCase = { caseName -> createSimpleCase(caseName) },
                         onAddEvidence = { startScanner() },
                         onGenerateReport = { generateReport() },
                         onViewReport = { viewReport() }
@@ -116,6 +122,14 @@ class MainActivity : ComponentActivity() {
                 Toast.LENGTH_SHORT
             ).show()
         }
+    }
+
+    private fun createSimpleCase(caseName: String) {
+        val case = Case.create(caseName)
+        caseRepository.saveCase(case)
+        val intent = Intent(this, CaseDetailActivity::class.java)
+        intent.putExtra("caseId", case.caseId)
+        startActivity(intent)
     }
 
     private fun startScanner() {
@@ -165,12 +179,14 @@ class MainActivity : ComponentActivity() {
 fun MainScreen(
     currentCase: ForensicCase?,
     onCreateCase: (String) -> Unit,
+    onCreateSimpleCase: (String) -> Unit,
     onAddEvidence: () -> Unit,
     onGenerateReport: () -> Unit,
     onViewReport: () -> Unit
 ) {
     var caseName by remember { mutableStateOf("") }
     var showCreateDialog by remember { mutableStateOf(false) }
+    var isSimpleCase by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -236,10 +252,28 @@ fun MainScreen(
 
         // Action Buttons
         Button(
-            onClick = { showCreateDialog = true },
+            onClick = { 
+                isSimpleCase = false
+                showCreateDialog = true 
+            },
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("Create New Case")
+            Text("Create New Case (Full Forensic)")
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Button(
+            onClick = { 
+                isSimpleCase = true
+                showCreateDialog = true 
+            },
+            modifier = Modifier.fillMaxWidth(),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.secondary
+            )
+        ) {
+            Text("Create Simple Case (Contradiction Engine)")
         }
 
         Spacer(modifier = Modifier.height(8.dp))
@@ -309,7 +343,7 @@ fun MainScreen(
     if (showCreateDialog) {
         AlertDialog(
             onDismissRequest = { showCreateDialog = false },
-            title = { Text("Create New Case") },
+            title = { Text(if (isSimpleCase) "Create Simple Case" else "Create New Case") },
             text = {
                 OutlinedTextField(
                     value = caseName,
@@ -322,7 +356,11 @@ fun MainScreen(
                 TextButton(
                     onClick = {
                         if (caseName.isNotBlank()) {
-                            onCreateCase(caseName)
+                            if (isSimpleCase) {
+                                onCreateSimpleCase(caseName)
+                            } else {
+                                onCreateCase(caseName)
+                            }
                             caseName = ""
                             showCreateDialog = false
                         }

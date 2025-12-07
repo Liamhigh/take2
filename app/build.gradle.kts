@@ -130,6 +130,7 @@ dependencies {
 
     // JSON processing
     implementation("org.json:json:20231013")
+    implementation("com.google.code.gson:gson:2.10.1")
 
     // QR code generation
     implementation("com.google.zxing:core:3.5.2")
