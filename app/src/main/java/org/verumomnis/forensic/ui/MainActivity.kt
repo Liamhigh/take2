@@ -25,6 +25,7 @@ import kotlinx.coroutines.launch
 import org.verumomnis.forensic.core.ForensicCase
 import org.verumomnis.forensic.core.VerumOmnisApplication
 import org.verumomnis.forensic.crypto.CryptographicSealingEngine
+import org.verumomnis.forensic.repository.CaseRepository
 import org.verumomnis.forensic.ui.theme.VerumOmnisTheme
 
 /**
@@ -43,7 +44,12 @@ import org.verumomnis.forensic.ui.theme.VerumOmnisTheme
  */
 class MainActivity : ComponentActivity() {
 
+    companion object {
+        const val EXTRA_CASE_ID = "case_id"
+    }
+
     private var currentCase: ForensicCase? = null
+    private lateinit var caseRepository: CaseRepository
 
     private val permissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
@@ -63,6 +69,9 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        // Initialize repository
+        caseRepository = CaseRepository(this)
+
         // ANTI-TAMPERING: Prevent screenshots during forensic processing
         // This is required for court admissibility per forensic standards
         window.setFlags(
@@ -71,6 +80,9 @@ class MainActivity : ComponentActivity() {
         )
 
         requestPermissions()
+
+        // Load last active case if any
+        loadLastActiveCase()
 
         setContent {
             VerumOmnisTheme {
@@ -85,6 +97,39 @@ class MainActivity : ComponentActivity() {
                         onGenerateReport = { generateReport() },
                         onViewReport = { viewReport() }
                     )
+                }
+            }
+        }
+    }
+
+    private fun loadLastActiveCase() {
+        lifecycleScope.launch {
+            val prefs = getSharedPreferences("verum_omnis", MODE_PRIVATE)
+            val lastCaseId = prefs.getString("last_case_id", null)
+            
+            if (lastCaseId != null) {
+                caseRepository.loadCase(lastCaseId).onSuccess { case ->
+                    currentCase = case
+                    runOnUiThread {
+                        Toast.makeText(
+                            this@MainActivity,
+                            "Loaded case: ${case.name}",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }
+            }
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        
+        // Reload current case to get any new evidence added by ScannerActivity
+        currentCase?.let { case ->
+            lifecycleScope.launch {
+                caseRepository.loadCase(case.id).onSuccess { reloadedCase ->
+                    currentCase = reloadedCase
                 }
             }
         }
@@ -110,11 +155,31 @@ class MainActivity : ComponentActivity() {
         val app = application as VerumOmnisApplication
         lifecycleScope.launch {
             currentCase = app.forensicEngine.createNewCase(caseName)
-            Toast.makeText(
-                this@MainActivity,
-                "Case created: ${currentCase?.name}",
-                Toast.LENGTH_SHORT
-            ).show()
+            
+            // Save the case to disk
+            currentCase?.let { case ->
+                caseRepository.saveCase(case).onSuccess {
+                    // Save as last active case
+                    val prefs = getSharedPreferences("verum_omnis", MODE_PRIVATE)
+                    prefs.edit().putString("last_case_id", case.id).apply()
+                    
+                    runOnUiThread {
+                        Toast.makeText(
+                            this@MainActivity,
+                            "Case created: ${case.name}",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }.onFailure { error ->
+                    runOnUiThread {
+                        Toast.makeText(
+                            this@MainActivity,
+                            "Error saving case: ${error.message}",
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
+                }
+            }
         }
     }
 
@@ -123,7 +188,11 @@ class MainActivity : ComponentActivity() {
             Toast.makeText(this, "Please create a case first", Toast.LENGTH_SHORT).show()
             return
         }
-        startActivity(Intent(this, ScannerActivity::class.java))
+        
+        // Pass case ID to ScannerActivity
+        val intent = Intent(this, ScannerActivity::class.java)
+        intent.putExtra(EXTRA_CASE_ID, currentCase!!.id)
+        startActivity(intent)
     }
 
     private fun generateReport() {

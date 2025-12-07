@@ -29,7 +29,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.verumomnis.forensic.core.EvidenceType
+import org.verumomnis.forensic.core.ForensicCase
+import org.verumomnis.forensic.core.VerumOmnisApplication
 import org.verumomnis.forensic.leveler.LevelerEngine
+import org.verumomnis.forensic.repository.CaseRepository
 import org.verumomnis.forensic.ui.theme.VerumOmnisTheme
 import java.io.File
 import java.text.SimpleDateFormat
@@ -66,6 +69,9 @@ class ScannerActivity : ComponentActivity() {
 
     private var currentPhotoPath: String? = null
     private var currentPhotoUri: Uri? = null
+    private var caseId: String? = null
+    private var currentCase: ForensicCase? = null
+    private lateinit var caseRepository: CaseRepository
 
     // Singleton Leveler Engine to avoid creating new instances for each analysis
     private val levelerEngine by lazy { LevelerEngine() }
@@ -109,6 +115,31 @@ class ScannerActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Get case ID from intent
+        caseId = intent.getStringExtra(MainActivity.EXTRA_CASE_ID)
+        if (caseId == null) {
+            Toast.makeText(this, "Error: No case ID provided", Toast.LENGTH_LONG).show()
+            finish()
+            return
+        }
+
+        // Initialize repository and load case
+        caseRepository = CaseRepository(this)
+        lifecycleScope.launch {
+            caseRepository.loadCase(caseId!!).onSuccess { case ->
+                currentCase = case
+            }.onFailure { error ->
+                runOnUiThread {
+                    Toast.makeText(
+                        this@ScannerActivity,
+                        "Error loading case: ${error.message}",
+                        Toast.LENGTH_LONG
+                    ).show()
+                    finish()
+                }
+            }
+        }
 
         // ANTI-TAMPERING: Prevent screenshots during evidence processing
         // This is required for court admissibility per forensic standards
@@ -236,6 +267,19 @@ class ScannerActivity : ComponentActivity() {
     private fun processPickedDocument(uri: Uri) {
         lifecycleScope.launch {
             try {
+                val case = currentCase
+                if (case == null) {
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(
+                            this@ScannerActivity,
+                            "Error: Case not loaded",
+                            Toast.LENGTH_LONG
+                        ).show()
+                        finish()
+                    }
+                    return@launch
+                }
+
                 Toast.makeText(
                     this@ScannerActivity,
                     "Processing document...",
@@ -258,18 +302,47 @@ class ScannerActivity : ComponentActivity() {
                         val mimeType = contentResolver.getType(uri) ?: "application/octet-stream"
                         val evidenceType = determineEvidenceType(mimeType, fileName)
 
-                        // For text files, run Leveler analysis
+                        // Add evidence to case using ForensicEngine
+                        val app = application as VerumOmnisApplication
+                        val metadata = mutableMapOf(
+                            "originalFileName" to fileName,
+                            "mimeType" to mimeType,
+                            "source" to "uploaded_document"
+                        )
+
+                        // For text files, run Leveler analysis and add to metadata
                         val levelerResult = if (mimeType.startsWith("text/") ||
                             fileName.endsWith(".txt") || fileName.endsWith(".chat")) {
                             val content = String(fileBytes, Charsets.UTF_8)
-                            levelerEngine.analyzeDocument(content)
+                            val analysis = levelerEngine.analyzeDocument(content)
+                            
+                            // Add Leveler analysis to metadata
+                            metadata["leveler_integrity_score"] = String.format("%.1f", analysis.integrityScore)
+                            metadata["leveler_contradictions"] = analysis.contradictions.size.toString()
+                            metadata["leveler_evasion_patterns"] = analysis.evasionPatterns.size.toString()
+                            metadata["leveler_assessment"] = analysis.overallAssessment.name
+                            
+                            analysis
                         } else {
                             null
                         }
 
+                        // Add evidence to case
+                        app.forensicEngine.addEvidence(
+                            case = case,
+                            evidenceType = evidenceType,
+                            description = fileName,
+                            data = fileBytes,
+                            metadata = metadata
+                        )
+
+                        // Save updated case
+                        caseRepository.saveCase(case)
+
                         withContext(Dispatchers.Main) {
                             val message = buildString {
-                                append("Document processed: $fileName")
+                                append("Document added to case")
+                                append("\nFile: $fileName")
                                 append("\nType: $evidenceType")
                                 append("\nSize: ${fileBytes.size / 1024} KB")
                                 if (levelerResult != null) {
@@ -316,6 +389,19 @@ class ScannerActivity : ComponentActivity() {
     private fun processCapturedPhoto(uri: Uri) {
         lifecycleScope.launch {
             try {
+                val case = currentCase
+                if (case == null) {
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(
+                            this@ScannerActivity,
+                            "Error: Case not loaded",
+                            Toast.LENGTH_LONG
+                        ).show()
+                        finish()
+                    }
+                    return@launch
+                }
+
                 Toast.makeText(
                     this@ScannerActivity,
                     "Processing photo...",
@@ -328,11 +414,30 @@ class ScannerActivity : ComponentActivity() {
                     inputStream?.close()
 
                     if (fileBytes != null) {
+                        // Add photo evidence to case
+                        val app = application as VerumOmnisApplication
+                        val fileName = currentPhotoPath?.substringAfterLast("/") ?: "photo.jpg"
+                        
+                        app.forensicEngine.addEvidence(
+                            case = case,
+                            evidenceType = EvidenceType.PHOTO,
+                            description = fileName,
+                            data = fileBytes,
+                            metadata = mapOf(
+                                "originalFileName" to fileName,
+                                "mimeType" to "image/jpeg",
+                                "source" to "camera_capture"
+                            )
+                        )
+
+                        // Save updated case
+                        caseRepository.saveCase(case)
+
                         withContext(Dispatchers.Main) {
                             val message = buildString {
-                                append("Photo captured successfully")
+                                append("Photo added to case")
                                 append("\nSize: ${fileBytes.size / 1024} KB")
-                                append("\nPath: ${currentPhotoPath?.substringAfterLast("/")}")
+                                append("\nFile: $fileName")
                             }
 
                             Toast.makeText(
@@ -391,13 +496,45 @@ class ScannerActivity : ComponentActivity() {
     private fun addTextEvidence(description: String, content: String) {
         lifecycleScope.launch {
             try {
-                // Run Leveler analysis on text content using the singleton instance
+                val case = currentCase
+                if (case == null) {
+                    Toast.makeText(
+                        this@ScannerActivity,
+                        "Error: Case not loaded",
+                        Toast.LENGTH_LONG
+                    ).show()
+                    finish()
+                    return@launch
+                }
+
+                // Run Leveler analysis on text content
                 val analysis = levelerEngine.analyzeDocument(content)
+
+                // Add text evidence to case
+                val app = application as VerumOmnisApplication
+                app.forensicEngine.addEvidence(
+                    case = case,
+                    evidenceType = EvidenceType.TEXT,
+                    description = description,
+                    data = content.toByteArray(Charsets.UTF_8),
+                    metadata = mapOf(
+                        "mimeType" to "text/plain",
+                        "source" to "manual_text_entry",
+                        "leveler_integrity_score" to String.format("%.1f", analysis.integrityScore),
+                        "leveler_contradictions" to analysis.contradictions.size.toString(),
+                        "leveler_evasion_patterns" to analysis.evasionPatterns.size.toString(),
+                        "leveler_assessment" to analysis.overallAssessment.name
+                    )
+                )
+
+                // Save updated case
+                caseRepository.saveCase(case)
 
                 Toast.makeText(
                     this@ScannerActivity,
                     buildString {
-                        append("Text evidence added: $description")
+                        append("Text evidence added to case")
+                        append("\nDescription: $description")
                         append("\nIntegrity: ${String.format("%.1f", analysis.integrityScore)}%")
                         append("\nAssessment: ${analysis.overallAssessment.name}")
                     },
