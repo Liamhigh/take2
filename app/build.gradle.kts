@@ -29,6 +29,9 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            // Use debug signing for release builds (appropriate for open-source projects)
+            // In production with a real keystore, create a separate signingConfig
+            signingConfig = signingConfigs.getByName("debug")
         }
         debug {
             enableUnitTestCoverage = true
