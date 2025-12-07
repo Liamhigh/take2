@@ -32,6 +32,22 @@
         android:networkSecurityConfig="@xml/network_security_config"
         tools:targetApi="34">
 
+        <!-- Simplified Contradiction Engine Activities -->
+        <activity
+            android:name=".MainActivity"
+            android:exported="false"
+            android:theme="@style/Theme.VerumOmnisForensic" />
+
+        <activity
+            android:name=".CaseDetailActivity"
+            android:exported="false"
+            android:theme="@style/Theme.VerumOmnisForensic" />
+
+        <activity
+            android:name=".ReportViewerActivity"
+            android:exported="false"
+            android:theme="@style/Theme.VerumOmnisForensic" />
+
         <!-- Main Activity -->
         <activity
             android:name=".ui.MainActivity"
