@@ -19,12 +19,12 @@ The repository has been optimized for:
 **Changes**:
 - Removed JaCoCo plugin from `app/build.gradle.kts`
 - Disabled all test tasks using `tasks.withType<Test>().configureEach { enabled = false }`
-- Set `testOptions.unitTests.all { it.enabled = false }`
-- Disabled test animations and resource inclusion
+- Disabled test animations in testOptions
+- Preserved test resource access for manual test execution
 - Removed test coverage from debug build type
 - Updated CI workflows to skip tests during builds
 
-**Impact**: `assembleDebug` and `assembleRelease` now build only the app, without running any tests.
+**Impact**: `assembleDebug` and `assembleRelease` now build only the app, without running any tests. Tests are preserved and can be run manually with full resource access.
 
 ### B. Gradle Performance Optimizations
 

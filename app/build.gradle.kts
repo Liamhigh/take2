@@ -57,12 +57,8 @@ android {
     testOptions {
         animationsDisabled = true
         unitTests {
-            isIncludeAndroidResources = false
+            isIncludeAndroidResources = true
             isReturnDefaultValues = true
-            all {
-                // Prevent tests from running automatically during assembleDebug/assembleRelease
-                it.enabled = false
-            }
         }
     }
 }
