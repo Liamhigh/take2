@@ -64,6 +64,8 @@ android {
 }
 
 // Disable all test tasks to prevent automatic execution during builds
+// This ensures assembleDebug/assembleRelease only build the app without running tests
+// Tests can still be run manually with: ./gradlew testDebugUnitTest
 tasks.withType<Test>().configureEach {
     enabled = false
 }

@@ -62,11 +62,11 @@ jobs:
     #   run: ./gradlew jacocoTestReport --stacktrace
     #   continue-on-error: true
 
-    - name: Upload Build Reports
+    - name: Upload Lint Reports
       if: always()
       uses: actions/upload-artifact@v4
       with:
-        name: build-reports
+        name: lint-reports
         path: |
           app/build/reports/lint-results-debug.html
         retention-days: 14
