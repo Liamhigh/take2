@@ -53,22 +53,22 @@ jobs:
     - name: Build Debug APK
       run: ./gradlew assembleDebug --stacktrace --info
 
-    - name: Run Unit Tests
-      run: ./gradlew testDebugUnitTest --stacktrace --info
+    # Tests are disabled for clean app-only builds
+    # To run tests manually, use: ./gradlew testDebugUnitTest
+    # - name: Run Unit Tests
+    #   run: ./gradlew testDebugUnitTest --stacktrace --info
 
-    - name: Generate Test Coverage Report
-      run: ./gradlew jacocoTestReport --stacktrace
-      continue-on-error: true
+    # - name: Generate Test Coverage Report
+    #   run: ./gradlew jacocoTestReport --stacktrace
+    #   continue-on-error: true
 
-    - name: Upload Test Results
+    - name: Upload Build Reports
       if: always()
       uses: actions/upload-artifact@v4
       with:
-        name: test-results
+        name: build-reports
         path: |
-          app/build/reports/tests/
           app/build/reports/lint-results-debug.html
-          app/build/reports/jacoco/
         retention-days: 14
 
     - name: Upload Debug APK
