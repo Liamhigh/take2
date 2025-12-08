@@ -18,9 +18,8 @@ The repository has been optimized for:
 
 **Changes**:
 - Removed JaCoCo plugin from `app/build.gradle.kts`
-- Disabled all test tasks in build configuration
+- Disabled all test tasks using `tasks.withType<Test>().configureEach { enabled = false }`
 - Set `testOptions.unitTests.all { it.enabled = false }`
-- Added task filter to prevent automatic test execution
 - Disabled test animations and resource inclusion
 - Removed test coverage from debug build type
 - Updated CI workflows to skip tests during builds
@@ -60,20 +59,14 @@ org.gradle.workers.max=4
 
 ### C. DEX Optimization
 
-**File**: `app/build.gradle.kts`
-
-**Changes**:
-```kotlin
-dexOptions {
-    preDexLibraries = true
-    maxProcessCount = 8
-    javaMaxHeapSize = "4g"
-}
-```
+Modern Android Gradle Plugin (AGP 8.6.1) handles DEX optimization automatically. The deprecated `dexOptions` block has been removed in favor of:
+- Automatic pre-dexing of libraries
+- Intelligent multi-core utilization
+- Optimized heap management based on available system resources
 
 **Impact**: 
-- Faster DEX conversion
-- Better multi-core utilization
+- Faster DEX conversion (automatic optimization by AGP)
+- Better multi-core utilization (automatic)
 - Reduced build times for incremental changes
 
 ### D. Build Configuration

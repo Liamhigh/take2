@@ -65,23 +65,11 @@ android {
             }
         }
     }
-
-    // DEX options for faster incremental builds
-    @Suppress("DEPRECATION")
-    dexOptions {
-        preDexLibraries = true
-        maxProcessCount = 8
-        javaMaxHeapSize = "4g"
-    }
 }
 
 // Disable all test tasks to prevent automatic execution during builds
-tasks.whenTaskAdded {
-    if (name.contains("test", ignoreCase = true) && 
-        !name.contains("install", ignoreCase = true) &&
-        !name.contains("assemble", ignoreCase = true)) {
-        enabled = false
-    }
+tasks.withType<Test>().configureEach {
+    enabled = false
 }
 
 dependencies {
